@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import './App.css'
 import Landingpage from './Components/Landingpage/landingpage'
+import Userdashboard from './Components/Dashboard/userdashboard'
 
 class App extends Component {
 	render() {
@@ -8,6 +9,9 @@ class App extends Component {
 			<div className="landingpage">
 				<Landingpage />
 			</div>
+			// <div>
+			// 	<Userdashboard />
+			// </div>
 		)
 	}
 }
