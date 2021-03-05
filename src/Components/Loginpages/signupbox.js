@@ -43,7 +43,7 @@ class Signupbox extends Component {
         evt.preventDefault()
         const form = evt.currentTarget.form
         if(form.reportValidity()) {
-            const url = `http://${window.location.hostname}:8000/signup`
+            const url = `http://${window.location.hostname}:3000/signup`
             let { username, email, password, role, passwordconfirmation } = this.state
             username = username.replace(" ", "")
             if(password===passwordconfirmation) {
