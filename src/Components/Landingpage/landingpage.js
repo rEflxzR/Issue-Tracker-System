@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import axios from 'axios'
 import Loginbox from '../Loginpages/loginbox'
 import Signupbox from '../Loginpages/signupbox'
 import Passwordreset from '../Loginpages/passwordreset'
@@ -14,6 +15,7 @@ class Landingpage extends Component {
 		}
 
 		this.linkClickHandler = this.linkClickHandler.bind(this)
+		this.handleRedirect = this.handleRedirect.bind(this)
 	}
 
 	linkClickHandler(evt) {
@@ -32,14 +34,25 @@ class Landingpage extends Component {
 		}
 	}
 
+	handleRedirect(page) {
+		console.log(page)
+		if(page=="home") {
+			window.location.reload()
+			console.log(this.props.history)
+		}
+		else if(page=="dashboard") {
+			this.props.history.push("/dashboard")
+		}
+	}
+
   	render() {
 		return (
 			<div className="main">
 				<div className="loginbox">
 					<h1 className="text-center" id="heading">BUG TRACKER</h1>
 					<div className="renderbox">
-						{this.state.currentbox==='login' && <Loginbox />}
-						{this.state.currentbox==='signup' && <Signupbox />}
+						{this.state.currentbox==='login' && <Loginbox redirect={this.handleRedirect} />}
+						{this.state.currentbox==='signup' && <Signupbox redirect={this.handleRedirect} />}
 						{this.state.currentbox==='resetpassword' && <Passwordreset />}
 						{this.state.currentbox==='demouser' && <Loginbox />}
 					</div>

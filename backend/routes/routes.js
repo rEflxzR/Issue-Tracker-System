@@ -13,12 +13,11 @@ const User = require('../models/users')
 
 router.get('/logout', (req, res) => {
     req.session = null
-    console.log(req.session)
     res.send("You Have Been Logged Out")
 })
 
 router.get('/cookie-session', (req, res) => {
-    console.log(req.session.userId)
+    // console.log(req.session.userId)
     if(req.session.userId) {
         res.status(200).send("Success")
     }
@@ -63,18 +62,35 @@ router.post("/signin",
         }
     })
 ], 
-(req, res) => {
-    if(req.session.userId) {
-        res.redirect('/dashboard')
+async (req, res) => {
+    const error = validationResult(req)
+    if(error.errors.length) {
+        res.status(200).send(error.errors)
+    }
+    else if(req.session.userId) {
+        res.status(200).send("Success")
     }
     else {
-        const error = validationResult(req)
-        if(error.errors.length==0) {
-            res.status(200).send("Success")
-        }
-        else {
-            res.status(200).send(error.errors)
-        }
+        const username = req.body.username
+        const userid = await mongodb.connect('mongodb://localhost:27017/bugtracker')
+        .then((client) => {
+            return client.db().collection('developers').findOne({username})
+            .then((res) => {
+                client.close()
+                return res
+            })
+            .catch((err) => {
+                client.close()
+                console.log("Could Not Find any User with that Username")
+            })
+        })
+        .catch((err) => {
+            console.log("Cannot Connect to the Database")
+        })
+
+        req.session.userId = userid._id
+        console.log(req.session.userId)
+        res.status(200).send("Success")
     }
 })
 

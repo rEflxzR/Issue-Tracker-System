@@ -53,6 +53,7 @@ class Signupbox extends Component {
                     this.setState({ username: "", email: "", password: "", passwordconfirmation: "", passwordsMatch: false, role: "" })
                     if(res.data=="Success") {
                         message += "Sign Up Complete, Proceed to Login"
+                        this.props.redirect("home")
                     }
                     else {
                         res.data.forEach((err) => {

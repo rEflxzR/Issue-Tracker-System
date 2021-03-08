@@ -11,8 +11,7 @@ app.use(cors())
 app.use(express.json())
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(cookieSession({
-	keys: ["swordbreaker"],
-	maxAge: 24 * 60 * 60 * 1000
+	keys: ["swordbreaker"]
 }))
 app.use(express.static(path.join(__dirname, '../build')));
 app.use(routes)

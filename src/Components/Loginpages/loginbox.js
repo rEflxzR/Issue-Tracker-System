@@ -30,15 +30,20 @@ class Loginbox extends Component {
             const { username, password } = this.state
             await axios.post(url, { username, password }, {withCredentials: true})
             .then((res) => {
-                let message = ""
                 this.setState({ username: "", password: "" })
-                if(res.data.length) {
+                if(res.data=="Success") {
+                    this.props.redirect("dashboard")
+                }
+                else if(res.data=="Fail") {
+                    console.log("Login Failed as User Not Logged In")
+                }
+                else {
+                    let message = ""
                     res.data.forEach((err) => {
                         message += `${err.msg}\n\n`
                     })
+                    alert(`${message}`)
                 }
-
-                alert(`${message}`)
             })
             .catch((err) => {
                 console.log("Some error encountered while sending a Signin Request")
