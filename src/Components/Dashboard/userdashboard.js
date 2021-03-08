@@ -8,7 +8,7 @@ class Userdashboard extends Component {
         const url = `http://${window.location.hostname}:3000/cookie-session`
         await axios.get(url, { withCredentials: true })
         .then((res) => {
-            if(res.data=="Fail") {
+            if(res.data==="Fail") {
                 this.props.history.replace("/")
             }
         })

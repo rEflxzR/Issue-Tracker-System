@@ -1,4 +1,3 @@
-const { Router, response } = require("express")
 const express = require("express")
 const { check, validationResult } = require('express-validator')
 const mongodb = require("mongodb").MongoClient
@@ -9,12 +8,13 @@ const User = require('../models/users')
 
 
 
-// -------------------GET ROUTES------------------------
+// ------------------------------------GET ROUTES---------------------------------
 
 router.get('/logout', (req, res) => {
     req.session = null
     res.send("You Have Been Logged Out")
 })
+
 
 router.get('/cookie-session', (req, res) => {
     if(req.session.userId) {
@@ -25,21 +25,61 @@ router.get('/cookie-session', (req, res) => {
     }
 })
 
+
 router.get('/*', function (req, res) {
 	res.sendFile(path.join(__dirname, '../../build', 'index.html'));
 });
 
 
 
-// -------------------POST ROUTES---------------------
+// -------------------------------POST ROUTES----------------------------------
 
-router.post("/signin", 
+router.post("/signin", async (req, res) => {
+    const username = req.body.username
+    const password = req.body.password
+    const userData = await mongodb.connect('mongodb://localhost:27017/bugtracker')
+    .then((client) => {
+        return client.db().collection('developers').findOne({username})
+        .then((res) => {
+            client.close()
+            return res
+        })
+        .catch((err) => {
+            client.close()
+            console.log("Could Not Find any User with that Username")
+            return null
+        })
+    })
+    .catch((err) => {
+        console.log("Cannot Connect to the Database")
+        return null
+    })
+
+
+    const errors = []
+    if(!userData) {
+        errors.push("Username Does Not Exists")
+        res.status(200).send(errors)
+    }
+    else if(userData.username==username && userData.password==password) {
+        req.session.userId = userData._id
+        console.log(req.session.userId)
+        res.status(200).send("Success")
+    }
+    else {
+        errors.push("Invalid Password")
+        res.status(200).send(errors)
+    }
+})
+
+// ====================================================================================
+
+router.post("/signup", 
 [
-    check('username').trim().custom(async (username, {req}) => {
-        const password = req.body.password
+    check('email').trim().normalizeEmail().isEmail().withMessage("Email Address is Invalid").custom(async (email) => {
         const result = await mongodb.connect('mongodb://localhost:27017/bugtracker')
         .then((client) => {
-            return client.db().collection('developers').findOne({username})
+            return client.db().collection('developers').findOne({email})
             .then((res) => {
                 client.close()
                 return res
@@ -50,52 +90,15 @@ router.post("/signin",
             })
         })
         .catch((err) => {
-            console.log("Unable to Connect to the Database")
+            console.log("Error Occurred while Connecting to the Database")
         })
 
-        if(result==null) {
-            throw new Error('Username Does Not Exists')
+        if(result) {
+            throw new Error('Email Address Already In Use')
         }
-        else if(result.password!=password) {
-            throw new Error('Incorrect Password')
-        }
-    })
-], 
-async (req, res) => {
-
-    const error = validationResult(req)
-    if(error.errors.length) {
-        res.status(200).send(error.errors)
-    }
-    else {
-        const username = req.body.username
-        const userid = await mongodb.connect('mongodb://localhost:27017/bugtracker')
-        .then((client) => {
-            return client.db().collection('developers').findOne({username})
-            .then((res) => {
-                client.close()
-                return res
-            })
-            .catch((err) => {
-                client.close()
-                console.log("Could Not Find any User with that Username")
-            })
-        })
-        .catch((err) => {
-            console.log("Cannot Connect to the Database")
-        })
-
-        req.session.userId = userid._id
-        console.log(req.session.userId)
-        res.status(200).send("Success")
-    }
-})
-
-router.post("/signup", 
-[
-    check('email').trim().normalizeEmail().isEmail().withMessage("Email Address is Invalid"), 
+    }), 
     check('password').trim().isLength({min: 4}).withMessage("Password Must be Atleast 8 Characters Long"), 
-    check('username').trim().custom(async (username) => {
+    check('username').trim().isLength({min: 3}).withMessage("Username Must be Atleast 3 Characters Long").custom(async (username) => {
         const result = await mongodb.connect('mongodb://localhost:27017/bugtracker')
         .then((client) => {
             return client.db().collection('developers').findOne({username})
@@ -147,32 +150,92 @@ async (req, res) => {
     }
 })
 
+// ====================================================================================
 
-router.post('/passwordreset', (req, res) => {
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: 'qlimaxzftw@gmail.com',
-          pass: 'yourpassword'
-        }
-      });
+router.post('/passwordreset', async (req, res) => {
+    const { email } = req.body
+
+    // Find the User detail with the sent username
+    const result = await mongodb.connect('mongodb://localhost:27017/bugtracker')
+    .then((client) => {
+        return client.db().collection('developers').findOne({email})
+        .then((res) => {
+            const username = res.username
+            const newpassword = Buffer.from(`${username}`).toString('base64')
+            client.db().collection('developers').updateOne({username}, {$set: {password: newpassword}})
+            client.close()
+            return newpassword
+        })
+        .catch((err) => {
+            client.close()
+            return null
+        })
+    })
+    .catch((err) => {
+        console.log("Could Not Establish Connection to the Database")
+        return null
+    })
+
+    if(result) {
+        res.status(200).send("Success")
+    }
+    // Send Mail to the User if Email Address was Correct
+    // const transporter = nodemailer.createTransport({
+    //     service: 'gmail',
+    //     auth: {
+    //         user: 'qlimaxzftw@gmail.com',
+    //         pass: 'yourpassword'
+    //     }
+    // });
       
-      var mailOptions = {
-        from: 'youremail@gmail.com',
-        to: 'myfriend@yahoo.com',
-        subject: 'Sending Email using Node.js',
-        text: 'That was easy!'
-      };
+    // var mailOptions = {
+    //     from: 'qlimaxzftw@gmail.com',
+    //     to: `${email}`,
+    //     subject: 'Password Reset for Bug Tracker',
+    //     text: `Your Password has been Resetted\n\nYour New Password is - ${result}\nPlease Reset Your Password Again`
+    // };
       
-      transporter.sendMail(mailOptions, function(error, info){
-        if (error) {
-          console.log(error);
-        } else {
-          console.log('Email sent: ' + info.response);
-        }
-      });
+    // transporter.sendMail(mailOptions, function(error, info){
+    //     if (error) {
+    //         console.log(error);
+    //     } else {
+    //         console.log('Email sent: ' + info.response);
+    //         res.status(200).send("Success")
+    //     }
+    // });
+
+
+    // Send an Error If Email Address is Incorrect
+    if(!result) {
+        res.status(200).send("Fail")
+    }
+
+
 })
 
+// ====================================================================================
+
+router.post('/newpassword', async (req, res) => {
+    const { currentPassword, newPassword } = req.body
+    await mongodb.connect('mongodb://localhost:27017/bugtracker')
+    .then((client) => {
+        const username = Buffer.from(`${currentPassword}`, 'base64').toString('ascii')
+        client.db().collection('developers').findOne({username})
+        .then((res) => {
+            client.db().collection('developers').updateOne({username}, {$set: {password: newPassword}})
+            client.close()
+            res.status(200).send("Success")
+        })
+        .catch((err) => {
+            client.close()
+            console.log("Password Update Failed")
+        })
+    })
+    .catch((err) => {
+        console.log("Could Not Connect to the Database")
+    })
+
+})
 
 
 module.exports = router

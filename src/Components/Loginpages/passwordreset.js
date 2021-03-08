@@ -24,14 +24,21 @@ class Passwordreset extends Component {
         evt.preventDefault()
         const form = evt.currentTarget.form
         if(form.reportValidity()) {
-            const url = `http://${window.location.hostname}:8000/passwordreset`
+            const url = `http://${window.location.hostname}:3000/passwordreset`
             const { email } = this.state
             await axios.post(url, { email })
             .then((res) => {
-                console.log("Password Reset Request Sent Successfully")
+                this.setState({ email: "" })
+                if(res.data==="Success") {
+                    alert("Your Password has been Reset Successfully\nCheck your Email for the New Password")
+                    this.props.setNewPass()
+                }
+                else {
+                    throw new Error('Email Address is Invalid')
+                }
             })
             .catch((err) => {
-                console.log("Password Reset Request Could Not be Sent")
+                alert(err)
             })
         }
     }

@@ -51,21 +51,20 @@ class Signupbox extends Component {
                 .then((res) => {
                     let message = ""
                     this.setState({ username: "", email: "", password: "", passwordconfirmation: "", passwordsMatch: false, role: "" })
-                    if(res.data=="Success") {
+                    if(res.data==="Success") {
                         message += "Sign Up Complete, Proceed to Login"
+                        alert(`${message}`)
                         this.props.redirect("home")
                     }
                     else {
                         res.data.forEach((err) => {
                             message += `${err.msg}\n\n`
                         })
+                        throw new Error(message)
                     }
-
-                    alert(`${message}`)
                 })
                 .catch((err) => {
-                    console.log("Signup Request Encountered some Errror")
-                    console.log(err)
+                    alert(err)
                 })
             }
             else {

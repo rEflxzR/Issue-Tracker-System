@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
-import axios from 'axios'
 import Loginbox from '../Loginpages/loginbox'
 import Signupbox from '../Loginpages/signupbox'
 import Passwordreset from '../Loginpages/passwordreset'
+import Newpassword from '../Loginpages/newpassword'
 import Link from '@material-ui/core/Link'
 import './Landingpage.css'
 
@@ -11,11 +11,12 @@ class Landingpage extends Component {
 		super(props)
 
 		this.state = {
-			currentbox: 'login'  // choose from login, signup, resetpassword, demouser
+			currentbox: 'login'  // choose from login, signup, resetpassword, setnewpassword, demouser
 		}
 
 		this.linkClickHandler = this.linkClickHandler.bind(this)
 		this.handleRedirect = this.handleRedirect.bind(this)
+		this.setNewPassword = this.setNewPassword.bind(this)
 	}
 
 	linkClickHandler(evt) {
@@ -29,16 +30,23 @@ class Landingpage extends Component {
 		else if(evt.currentTarget.text[0]==='F') {
 			this.setState({ currentbox: 'resetpassword' })
 		}
+		// else if(evt.currentTarget.text[0]==='N') {
+
+		// }
 		else {
 			this.setState({ currentbox: 'demouser' })
 		}
 	}
 
+	setNewPassword() {
+		this.setState({ currentbox: 'setnewpassword' })
+	}
+
 	handleRedirect(page) {
-		if(page=="home") {
+		if(page==="home") {
 			window.location.reload()
 		}
-		else if(page=="dashboard") {
+		else if(page==="dashboard") {
 			this.props.history.push("/dashboard")
 		}
 	}
@@ -51,7 +59,8 @@ class Landingpage extends Component {
 					<div className="renderbox">
 						{this.state.currentbox==='login' && <Loginbox redirect={this.handleRedirect} />}
 						{this.state.currentbox==='signup' && <Signupbox redirect={this.handleRedirect} />}
-						{this.state.currentbox==='resetpassword' && <Passwordreset />}
+						{this.state.currentbox==='resetpassword' && <Passwordreset setNewPass={this.setNewPassword} />}
+						{this.state.currentbox==='setnewpassword' && <Newpassword redirect={this.handleRedirect} />}
 						{this.state.currentbox==='demouser' && <Loginbox />}
 					</div>
 
