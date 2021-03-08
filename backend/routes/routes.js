@@ -9,7 +9,7 @@ const User = require('../models/users')
 
 
 
-// GET ROUTES
+// -------------------GET ROUTES------------------------
 
 router.get('/logout', (req, res) => {
     req.session = null
@@ -17,7 +17,6 @@ router.get('/logout', (req, res) => {
 })
 
 router.get('/cookie-session', (req, res) => {
-    // console.log(req.session.userId)
     if(req.session.userId) {
         res.status(200).send("Success")
     }
@@ -32,7 +31,7 @@ router.get('/*', function (req, res) {
 
 
 
-// POST ROUTES
+// -------------------POST ROUTES---------------------
 
 router.post("/signin", 
 [
@@ -63,12 +62,10 @@ router.post("/signin",
     })
 ], 
 async (req, res) => {
+
     const error = validationResult(req)
     if(error.errors.length) {
         res.status(200).send(error.errors)
-    }
-    else if(req.session.userId) {
-        res.status(200).send("Success")
     }
     else {
         const username = req.body.username

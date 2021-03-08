@@ -35,10 +35,8 @@ class Landingpage extends Component {
 	}
 
 	handleRedirect(page) {
-		console.log(page)
 		if(page=="home") {
 			window.location.reload()
-			console.log(this.props.history)
 		}
 		else if(page=="dashboard") {
 			this.props.history.push("/dashboard")
