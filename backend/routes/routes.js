@@ -59,15 +59,15 @@ router.post("/signin", async (req, res) => {
     const errors = []
     if(!userData) {
         errors.push("Username Does Not Exists")
-        res.status(200).send(errors)
+        res.status(400).send(errors)
     }
     else if(userData.username==username && userData.password==password) {
         req.session.userId = userData._id
-        res.status(200).send("Success")
+        res.status(200).json({msg: "Success", content: userData})
     }
     else {
         errors.push("Invalid Password")
-        res.status(200).send(errors)
+        res.status(400).send(errors)
     }
 })
 
@@ -142,7 +142,7 @@ async (req, res) => {
         })
 
         req.session.userId = userid
-        res.status(200).send("Success")
+        res.status(200).json({msg: "Success", content: null})
     }
     else {
         res.status(200).send(error.errors)
