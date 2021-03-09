@@ -63,7 +63,6 @@ router.post("/signin", async (req, res) => {
     }
     else if(userData.username==username && userData.password==password) {
         req.session.userId = userData._id
-        console.log(req.session.userId)
         res.status(200).send("Success")
     }
     else {
@@ -217,23 +216,33 @@ router.post('/passwordreset', async (req, res) => {
 
 router.post('/newpassword', async (req, res) => {
     const { currentPassword, newPassword } = req.body
-    await mongodb.connect('mongodb://localhost:27017/bugtracker')
+    const username = Buffer.from(`${currentPassword}`, 'base64').toString('ascii')
+    const result = await mongodb.connect('mongodb://localhost:27017/bugtracker')
     .then((client) => {
-        const username = Buffer.from(`${currentPassword}`, 'base64').toString('ascii')
-        client.db().collection('developers').findOne({username})
+        return client.db().collection('developers').findOne({username})
         .then((res) => {
-            client.db().collection('developers').updateOne({username}, {$set: {password: newPassword}})
+            if(res) {
+                client.db().collection('developers').updateOne({username}, {$set: {password: newPassword}})
+            }
             client.close()
-            res.status(200).send("Success")
+            return res ? true : false
         })
         .catch((err) => {
             client.close()
-            console.log("Password Update Failed")
+            return false
         })
     })
     .catch((err) => {
         console.log("Could Not Connect to the Database")
+        return null
     })
+
+    if(result) {
+        res.status(200).send("Success")
+    }
+    else {
+        res.status(200).send("Fail")
+    }
 
 })
 
