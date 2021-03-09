@@ -37,16 +37,15 @@ class Newpassword extends Component {
             if(newPassword===passwordConfirmation) {
                 await axios.post(url, { currentPassword, newPassword })
                 .then((res) => {
-                    if(res.data=="Success") {
+                    this.setState({ currentPassword: "", newPassword: "", passwordConfirmation: "" }, () => {
                         alert("Your Password has been Reset Successfully")
                         this.props.redirect("home")
-                    }
-                    else {
-                        throw new Error("Unable to Set Your Password")
-                    }
+                    })
                 })
                 .catch((err) => {
-                    alert(err)
+                    this.setState({ currentPassword: "", newPassword: "", passwordConfirmation: "" }, () => {
+                        alert("Error: Please Ensure You Entered Correct Password")
+                    })
                 })
             }
             else {

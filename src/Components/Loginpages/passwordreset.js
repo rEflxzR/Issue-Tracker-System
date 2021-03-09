@@ -28,17 +28,15 @@ class Passwordreset extends Component {
             const { email } = this.state
             await axios.post(url, { email })
             .then((res) => {
-                this.setState({ email: "" })
-                if(res.data==="Success") {
+                this.setState({ email: "" }, () => {
                     alert("Your Password has been Reset Successfully\nCheck your Email for the New Password")
                     this.props.setNewPass()
-                }
-                else {
-                    throw new Error('Email Address is Invalid')
-                }
+                })
             })
             .catch((err) => {
-                alert(err)
+                this.setState({ email: "" }, () => {
+                    alert("Error: Email Address is Invalid")
+                })
             })
         }
     }

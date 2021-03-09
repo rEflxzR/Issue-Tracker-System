@@ -49,22 +49,19 @@ class Signupbox extends Component {
             if(password===passwordconfirmation) {
                 await axios.post(url, {username, email, password, role})
                 .then((res) => {
-                    let message = ""
-                    this.setState({ username: "", email: "", password: "", passwordconfirmation: "", passwordsMatch: false, role: "" })
-                    if(res.data==="Success") {
-                        message += "Sign Up Complete, Proceed to Login"
-                        alert(`${message}`)
+                    this.setState({ username: "", email: "", password: "", passwordconfirmation: "", passwordsMatch: false, role: "" }, () => {
+                        alert("Sign Up Complete, Proceed to Login")
                         this.props.redirect("home")
-                    }
-                    else {
-                        res.data.forEach((err) => {
-                            message += `${err.msg}\n\n`
-                        })
-                        throw new Error(message)
-                    }
+                    })
                 })
                 .catch((err) => {
-                    alert(err)
+                    this.setState({ username: "", email: "", password: "", passwordconfirmation: "", passwordsMatch: false, role: "" }, () => {
+                        let message = ""
+                        err.response.data.forEach((err) => {
+                            message += `${err.msg}\n\n`
+                        })
+                        alert(message)
+                    })
                 })
             }
             else {

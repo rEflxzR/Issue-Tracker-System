@@ -30,15 +30,14 @@ class Loginbox extends Component {
             const { username, password } = this.state
             await axios.post(url, { username, password }, {withCredentials: true})
             .then((res) => {
-                console.log(res)
-                this.setState({ username: "", password: "" })
-                if(res.data==="Success") {
+                this.setState({ username: "", password: "" }, () => {
                     this.props.redirect("dashboard")
-                }
+                })
             })
             .catch((err) => {
-                this.setState({ username: "", password: "" })
-                alert(`Error: ${err.response.data}`)
+                this.setState({ username: "", password: "" }, () => {
+                    alert(`Error: ${err.response.data}`)
+                })
             })
         }
     }

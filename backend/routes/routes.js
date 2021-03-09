@@ -18,10 +18,10 @@ router.get('/logout', (req, res) => {
 
 router.get('/cookie-session', (req, res) => {
     if(req.session.userId) {
-        res.status(200).send("Success")
+        res.status(200).json({msg: "Success", content: null})
     }
     else {
-        res.status(200).send("Fail")
+        res.status(400).send("Fail")
     }
 })
 
@@ -138,14 +138,14 @@ async (req, res) => {
             })
         })
         .catch((err) => {
-            console.log("Could NOT Connect to MongoDB Server")
+            console.log("Could NOT Connect to Database Server")
         })
 
         req.session.userId = userid
         res.status(200).json({msg: "Success", content: null})
     }
     else {
-        res.status(200).send(error.errors)
+        res.status(400).send(error.errors)
     }
 })
 
@@ -175,38 +175,42 @@ router.post('/passwordreset', async (req, res) => {
         return null
     })
 
+    console.log(email)
     if(result) {
-        res.status(200).send("Success")
+        const transporter = nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false,
+            requireTLS: true,
+            auth: {
+                user: 'qlimaxzftw@gmail.com',
+                pass: 'Bfeb@24165'
+            }
+        })
+          
+        const mailOptions = {
+            from: 'qlimaxzftw@gmail.com',
+            to: `${email}`,
+            subject: 'Password Reset for Bug Tracker Account',
+            text: `Your Bug Tracker Account Password has been Reset\n\nYour New Current Password is: "${result}"\n\nPlease Set your New Password Again`
+        }
+          
+        transporter.sendMail(mailOptions, function(error, info){
+            if (error) {
+                console.log(error)
+            } else {
+                console.log('Email sent: ' + info.response)
+                res.status(200).json({msg: "Success", content: null})
+            }
+        })
     }
     // Send Mail to the User if Email Address was Correct
-    // const transporter = nodemailer.createTransport({
-    //     service: 'gmail',
-    //     auth: {
-    //         user: 'qlimaxzftw@gmail.com',
-    //         pass: 'yourpassword'
-    //     }
-    // });
-      
-    // var mailOptions = {
-    //     from: 'qlimaxzftw@gmail.com',
-    //     to: `${email}`,
-    //     subject: 'Password Reset for Bug Tracker',
-    //     text: `Your Password has been Resetted\n\nYour New Password is - ${result}\nPlease Reset Your Password Again`
-    // };
-      
-    // transporter.sendMail(mailOptions, function(error, info){
-    //     if (error) {
-    //         console.log(error);
-    //     } else {
-    //         console.log('Email sent: ' + info.response);
-    //         res.status(200).send("Success")
-    //     }
-    // });
+
 
 
     // Send an Error If Email Address is Incorrect
     if(!result) {
-        res.status(200).send("Fail")
+        res.status(400).send("Fail")
     }
 
 
@@ -238,10 +242,10 @@ router.post('/newpassword', async (req, res) => {
     })
 
     if(result) {
-        res.status(200).send("Success")
+        res.status(200).json({msg: "Success", content: null})
     }
     else {
-        res.status(200).send("Fail")
+        res.status(400).send("Fail")
     }
 
 })
