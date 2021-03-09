@@ -75,7 +75,7 @@ router.post("/signin", async (req, res) => {
 
 router.post("/signup", 
 [
-    check('email').trim().normalizeEmail().isEmail().withMessage("Email Address is Invalid").custom(async (email) => {
+    check('email').trim().normalizeEmail({"gmail_remove_dots": false}).isEmail().withMessage("Email Address is Invalid").custom(async (email) => {
         const result = await mongodb.connect('mongodb://localhost:27017/bugtracker')
         .then((client) => {
             return client.db().collection('developers').findOne({email})
