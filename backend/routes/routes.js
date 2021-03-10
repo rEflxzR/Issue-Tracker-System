@@ -39,7 +39,7 @@ router.post("/signin", async (req, res) => {
     const password = req.body.password
     const userData = await mongodb.connect('mongodb://localhost:27017/bugtracker')
     .then((client) => {
-        return client.db().collection('developers').findOne({username})
+        return client.db().collection('users').findOne({username})
         .then((res) => {
             client.close()
             return res
@@ -78,7 +78,7 @@ router.post("/signup",
     check('email').trim().normalizeEmail({"gmail_remove_dots": false}).isEmail().withMessage("Email Address is Invalid").custom(async (email) => {
         const result = await mongodb.connect('mongodb://localhost:27017/bugtracker')
         .then((client) => {
-            return client.db().collection('developers').findOne({email})
+            return client.db().collection('users').findOne({email})
             .then((res) => {
                 client.close()
                 return res
@@ -100,7 +100,7 @@ router.post("/signup",
     check('username').trim().isLength({min: 3}).withMessage("Username Must be Atleast 3 Characters Long").custom(async (username) => {
         const result = await mongodb.connect('mongodb://localhost:27017/bugtracker')
         .then((client) => {
-            return client.db().collection('developers').findOne({username})
+            return client.db().collection('users').findOne({username})
             .then((res) => {
                 client.close()
                 return res
@@ -127,7 +127,7 @@ async (req, res) => {
 
         const userid = await mongodb.connect('mongodb://localhost:27017/bugtracker')
         .then((client) => {
-            return client.db().collection('developers').insertOne(newUser)
+            return client.db().collection('users').insertOne(newUser)
             .then((res) => {
                 client.close()
                 return res.insertedId
@@ -157,11 +157,11 @@ router.post('/passwordreset', async (req, res) => {
     // Find the User detail with the sent username
     const result = await mongodb.connect('mongodb://localhost:27017/bugtracker')
     .then((client) => {
-        return client.db().collection('developers').findOne({email})
+        return client.db().collection('users').findOne({email})
         .then((res) => {
             const username = res.username
             const newpassword = Buffer.from(`${username}`).toString('base64')
-            client.db().collection('developers').updateOne({username}, {$set: {password: newpassword}})
+            client.db().collection('users').updateOne({username}, {$set: {password: newpassword}})
             client.close()
             return newpassword
         })
@@ -175,7 +175,6 @@ router.post('/passwordreset', async (req, res) => {
         return null
     })
 
-    console.log(email)
     if(result) {
         const transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
@@ -199,14 +198,11 @@ router.post('/passwordreset', async (req, res) => {
             if (error) {
                 console.log(error)
             } else {
-                console.log('Email sent: ' + info.response)
+                console.log('Email Sent Successfully: ' + info.response)
                 res.status(200).json({msg: "Success", content: null})
             }
         })
     }
-    // Send Mail to the User if Email Address was Correct
-
-
 
     // Send an Error If Email Address is Incorrect
     if(!result) {
@@ -223,10 +219,10 @@ router.post('/newpassword', async (req, res) => {
     const username = Buffer.from(`${currentPassword}`, 'base64').toString('ascii')
     const result = await mongodb.connect('mongodb://localhost:27017/bugtracker')
     .then((client) => {
-        return client.db().collection('developers').findOne({username})
+        return client.db().collection('users').findOne({username})
         .then((res) => {
             if(res) {
-                client.db().collection('developers').updateOne({username}, {$set: {password: newPassword}})
+                client.db().collection('users').updateOne({username}, {$set: {password: newPassword}})
             }
             client.close()
             return res ? true : false
