@@ -3,6 +3,11 @@ const { check, validationResult } = require('express-validator')
 const mongodb = require("mongodb").MongoClient
 const router = express.Router()
 const path = require("path")
+
+const fs = require('fs')
+const crypto = require('crypto')
+const util = require('util')
+const scrypt = util.promisify(crypto.scrypt)
 const nodemailer = require('nodemailer')
 const User = require('../models/users')
 
@@ -37,6 +42,7 @@ router.get('/*', function (req, res) {
 router.post("/signin", async (req, res) => {
     const username = req.body.username
     const password = req.body.password
+
     const userData = await mongodb.connect('mongodb://localhost:27017/bugtracker')
     .then((client) => {
         return client.db().collection('users').findOne({username})
@@ -61,13 +67,21 @@ router.post("/signin", async (req, res) => {
         errors.push("Username Does Not Exists")
         res.status(400).send(errors)
     }
-    else if(userData.username==username && userData.password==password) {
-        req.session.userId = userData._id
-        res.status(200).json({msg: "Success", content: userData})
-    }
-    else {
-        errors.push("Invalid Password")
-        res.status(400).send(errors)
+
+    else if(userData.username==username) {
+        const salt = userData.salt
+        const hashedPassword = await scrypt(password, salt, 16).then((res) => {
+            return res.toString('hex')
+        })
+
+        if(userData.password==hashedPassword) {
+            req.session.userId = userData._id
+            res.status(200).json({msg: "Success", content: userData})
+        }
+        else {
+            errors.push("Invalid Password")
+            res.status(400).send(errors)
+        }
     }
 })
 
@@ -123,7 +137,13 @@ async (req, res) => {
     const error = validationResult(req)
     if(!error.errors.length) {
         const { username, password, email, role } = req.body
-        const newUser = new User({ username, email, password, role })
+
+        const salt = crypto.randomBytes(8).toString('hex')
+        const hashedPassword = await scrypt(password, salt, 16).then((res) => {
+            return res.toString('hex')
+        })
+
+        const newUser = new User({ username, email, password: hashedPassword, salt, role })
 
         const userid = await mongodb.connect('mongodb://localhost:27017/bugtracker')
         .then((client) => {
@@ -161,7 +181,7 @@ router.post('/passwordreset', async (req, res) => {
         .then((res) => {
             const username = res.username
             const newpassword = Buffer.from(`${username}`).toString('base64')
-            client.db().collection('users').updateOne({username}, {$set: {password: newpassword}})
+            client.db().collection('users').updateOne({username}, {$set: {password: newpassword, salt: ""}})
             client.close()
             return newpassword
         })
@@ -215,14 +235,20 @@ router.post('/passwordreset', async (req, res) => {
 // ====================================================================================
 
 router.post('/newpassword', async (req, res) => {
+
     const { currentPassword, newPassword } = req.body
     const username = Buffer.from(`${currentPassword}`, 'base64').toString('ascii')
+    const salt = crypto.randomBytes(8).toString('hex')
+    const hashedPassword = await scrypt(newPassword, salt, 16).then((res) => {
+        return res.toString('hex')
+    })
+
     const result = await mongodb.connect('mongodb://localhost:27017/bugtracker')
     .then((client) => {
         return client.db().collection('users').findOne({username})
         .then((res) => {
             if(res) {
-                client.db().collection('users').updateOne({username}, {$set: {password: newPassword}})
+                client.db().collection('users').updateOne({username}, {$set: {password: hashedPassword, salt}})
             }
             client.close()
             return res ? true : false
