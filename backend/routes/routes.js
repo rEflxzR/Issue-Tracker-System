@@ -43,7 +43,7 @@ router.post("/signin", async (req, res) => {
     const username = req.body.username
     const password = req.body.password
 
-    const userData = await mongodb.connect('mongodb://localhost:27017/bugtracker')
+    const userData = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
     .then((client) => {
         return client.db().collection('users').findOne({username})
         .then((res) => {
@@ -76,7 +76,7 @@ router.post("/signin", async (req, res) => {
 
         if(userData.password==hashedPassword) {
             req.session.userId = userData._id
-            res.status(200).json({msg: "Success", content: userData})
+            res.status(200).json({msg: "Success", content: {Name: userData.username, Role: userData.role}})
         }
         else {
             errors.push("Invalid Password")
@@ -90,7 +90,7 @@ router.post("/signin", async (req, res) => {
 router.post("/signup", 
 [
     check('email').trim().normalizeEmail({"gmail_remove_dots": false}).isEmail().withMessage("Email Address is Invalid").custom(async (email) => {
-        const result = await mongodb.connect('mongodb://localhost:27017/bugtracker')
+        const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
         .then((client) => {
             return client.db().collection('users').findOne({email})
             .then((res) => {
@@ -112,7 +112,7 @@ router.post("/signup",
     }), 
     check('password').trim().isLength({min: 4}).withMessage("Password Must be Atleast 8 Characters Long"), 
     check('username').trim().isLength({min: 3}).withMessage("Username Must be Atleast 3 Characters Long").custom(async (username) => {
-        const result = await mongodb.connect('mongodb://localhost:27017/bugtracker')
+        const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
         .then((client) => {
             return client.db().collection('users').findOne({username})
             .then((res) => {
@@ -145,7 +145,7 @@ async (req, res) => {
 
         const newUser = new User({ username, email, password: hashedPassword, salt, role })
 
-        const userid = await mongodb.connect('mongodb://localhost:27017/bugtracker')
+        const userid = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
         .then((client) => {
             return client.db().collection('users').insertOne(newUser)
             .then((res) => {
@@ -175,7 +175,7 @@ router.post('/passwordreset', async (req, res) => {
     const { email } = req.body
 
     // Find the User detail with the sent username
-    const result = await mongodb.connect('mongodb://localhost:27017/bugtracker')
+    const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
     .then((client) => {
         return client.db().collection('users').findOne({email})
         .then((res) => {
@@ -243,7 +243,7 @@ router.post('/newpassword', async (req, res) => {
         return res.toString('hex')
     })
 
-    const result = await mongodb.connect('mongodb://localhost:27017/bugtracker')
+    const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
     .then((client) => {
         return client.db().collection('users').findOne({username})
         .then((res) => {

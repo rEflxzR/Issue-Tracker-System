@@ -31,6 +31,9 @@ class Loginbox extends Component {
             await axios.post(url, { username, password }, {withCredentials: true})
             .then((res) => {
                 this.setState({ username: "", password: "" }, () => {
+                    window.localStorage.clear()
+                    window.localStorage.setItem("Name", res.data.content.Name)
+                    window.localStorage.setItem("Role", res.data.content.Role)
                     this.props.redirect("dashboard")
                 })
             })

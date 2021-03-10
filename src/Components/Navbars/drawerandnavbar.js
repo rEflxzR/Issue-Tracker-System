@@ -110,9 +110,7 @@ export default function PersistentDrawerLeft() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap>
-            Hello Admin
-          </Typography>
+          <Typography variant="h6" noWrap>Hello {window.localStorage.Name}</Typography>
         </Toolbar>
       </AppBar>
       <Drawer
