@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react'
 import clsx from 'clsx';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
@@ -17,6 +17,12 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
+import Homepage from '../Dashboardcomponents/homepage'
+import Profile from '../Dashboardcomponents/profile'
+import UserTickets from '../Dashboardcomponents/usertickets'
+import UserProjects from '../Dashboardcomponents/userprojects'
+import ManageUsers from '../Dashboardcomponents/manageusers'
+import ManageProjects from '../Dashboardcomponents/manageprojects'
 
 const drawerWidth = 240;
 
@@ -77,10 +83,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function PersistentDrawerLeft() {
+
+export default function Navbar() {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(window.innerWidth<=600 ? false : true);
+  const [page, currentPage] = React.useState("home")
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -89,6 +97,10 @@ export default function PersistentDrawerLeft() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+  const setPage = (evt) => {
+    currentPage(evt.currentTarget.getAttribute("value"))
+  }
 
   return (
     <div className={classes.root}>
@@ -110,7 +122,7 @@ export default function PersistentDrawerLeft() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap>Hello {window.localStorage.Name}</Typography>
+          <Typography variant="h5" noWrap><strong>Hello {window.localStorage.Name}</strong></Typography>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -129,19 +141,19 @@ export default function PersistentDrawerLeft() {
         </div>
         <Divider />
         <List>
-          {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-            <ListItem button key={text}>
+          {[{page:'home', name:'Home'}, {page:'manageroles', name:'Manage Roles'}, {page:'manageprojects', name:'Manage Projects'}].map((text, index) => (
+            <ListItem onClick={setPage} value={text.page} button key={text.name}>
               <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-              <ListItemText primary={text} />
+              <ListItemText primary={text.name} />
             </ListItem>
           ))}
         </List>
         <Divider />
         <List>
-          {['All mail', 'Trash', 'Spam'].map((text, index) => (
-            <ListItem button key={text}>
+          {[{page:'myprojects', name:'My Projects'}, {page:'mytickets', name:'My Tickets'}, {page:'myprofile', name:'My Profile'}].map((text, index) => (
+            <ListItem onClick={setPage} value={text.page} button key={text.name}>
               <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-              <ListItemText primary={text} />
+              <ListItemText primary={text.name} />
             </ListItem>
           ))}
         </List>
@@ -152,6 +164,15 @@ export default function PersistentDrawerLeft() {
         })}
       >
         <div className={classes.drawerHeader} />
+
+        {/* ALL COMPONENTS AND CONTENT GOES HERE */}
+        {page==="home" && <Homepage/>}
+        {page==="manageroles" && <ManageUsers/>}
+        {page==="manageprojects" && <ManageProjects/>}
+        {page==="myprojects" && <UserProjects/>}
+        {page==="mytickets" && <UserTickets/>}
+        {page==="myprofile" && <Profile/>}
+        
       </main>
     </div>
   );

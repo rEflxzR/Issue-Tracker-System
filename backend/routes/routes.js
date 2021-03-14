@@ -3,7 +3,6 @@ const { check, validationResult } = require('express-validator')
 const mongodb = require("mongodb").MongoClient
 const router = express.Router()
 const path = require("path")
-
 const fs = require('fs')
 const crypto = require('crypto')
 const util = require('util')
@@ -154,7 +153,7 @@ async (req, res) => {
             })
             .catch((err) => {
                 client.close()
-                console.log("There was an Error Inserting the User into the Database")
+                console.log("Error Inserting the User into the Database")
             })
         })
         .catch((err) => {
@@ -178,10 +177,10 @@ router.post('/passwordreset', async (req, res) => {
     const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
     .then((client) => {
         return client.db().collection('users').findOne({email})
-        .then((res) => {
+        .then(async (res) => {
             const username = res.username
             const newpassword = Buffer.from(`${username}`).toString('base64')
-            client.db().collection('users').updateOne({username}, {$set: {password: newpassword, salt: ""}})
+            await client.db().collection('users').updateOne({username}, {$set: {password: newpassword, salt: ""}})
             client.close()
             return newpassword
         })
@@ -202,16 +201,16 @@ router.post('/passwordreset', async (req, res) => {
             secure: false,
             requireTLS: true,
             auth: {
-                user: 'qlimaxzftw@gmail.com',
-                pass: 'Bfeb@24165'
+                user: 'noreply.bugtrackermgmt@gmail.com',
+                pass: 'misfitactual'
             }
         })
           
         const mailOptions = {
-            from: 'qlimaxzftw@gmail.com',
+            from: 'noreply.bugtrackermgmt@gmail.com',
             to: `${email}`,
             subject: 'Password Reset for Bug Tracker Account',
-            text: `Your Bug Tracker Account Password has been Reset\n\nYour New Current Password is: "${result}"\n\nPlease Set your New Password Again`
+            text: `Your Bug Tracker Account Password has been Reset\n\nYour New Current Password is: ${result}\n\nPlease Set your New Password Again`
         }
           
         transporter.sendMail(mailOptions, function(error, info){
@@ -246,9 +245,9 @@ router.post('/newpassword', async (req, res) => {
     const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
     .then((client) => {
         return client.db().collection('users').findOne({username})
-        .then((res) => {
+        .then(async (res) => {
             if(res) {
-                client.db().collection('users').updateOne({username}, {$set: {password: hashedPassword, salt}})
+                await client.db().collection('users').updateOne({username}, {$set: {password: hashedPassword, salt}})
             }
             client.close()
             return res ? true : false
