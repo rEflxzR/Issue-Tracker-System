@@ -27,34 +27,47 @@
 .body {
     width: 100%;
     height: 90%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
 }
 
-.body>div {
+.tablecontainer {
     background-color: white;
     height: 100%;
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
 }
 
 .tablediv {
     width: 100%;
+    height: 90%;
     display: flex;
     justify-content: center;
+    padding-top: 9%;
 }
 
 .tablediv>table {
     width: 100%;
+    height: 100%;
+}
+
+.tablediv>table>tbody {
+    border-bottom: solid black 2px;
 }
 
 .tablehead {
-    display: flex;
     width: 100%;
-    justify-content: center
+    display: flex;
+    justify-content: center;
+    border-bottom: solid black 2px
 }
 
 .tablerow {
     width: 100%;
     display: flex;
+}
+
+.bottom {
+    display: flex;
+    justify-content: space-between;
 }

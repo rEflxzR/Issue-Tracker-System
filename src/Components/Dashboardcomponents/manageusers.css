@@ -1,0 +1,27 @@
+.mainrow {
+    height: 70vh;
+    width: 80vw;
+}
+
+.form {
+    background-color: white;
+    height: 80%;
+}
+
+.form>form {
+    height: 100%;
+}
+
+.selectmenu {
+    width: 100%;
+}
+
+.rolemenu {
+    width: 100%;
+}
+
+.formbuttons {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
