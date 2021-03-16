@@ -95,10 +95,10 @@ class ManageUsers extends Component {
             <div>
                 <div className="row mainrow">
                     <div className="col col-4">
-                        <div className="form">
+                        <div className="userform px-5">
                             <form>
-                                <h2 className="my-5 text-center">Manage User Roles</h2>
-                                <FormControl required className="selectmenu">
+                                <h2 className="py-5 text-center">Manage User Roles</h2>
+                                <FormControl required className="userselectmenu">
                                     <InputLabel shrink>Select 1 or more Users</InputLabel>
                                     <Select disabled={window.localStorage.getItem("role")==="admin" ? false : true} multiple native value={this.state.personName} onChange={this.handleRoleAssignmentChange}>
                                         {

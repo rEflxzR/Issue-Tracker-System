@@ -3,16 +3,17 @@
     width: 80vw;
 }
 
-.form {
+.userform {
     background-color: white;
     height: 80%;
+
 }
 
-.form>form {
+.userform>form {
     height: 100%;
 }
 
-.selectmenu {
+.userselectmenu {
     width: 100%;
 }
 
