@@ -1,0 +1,40 @@
+.userprojectrow {
+    height: 80vh;
+    width: 85vw;
+}
+
+.projectform>form {
+    height: 100%;
+    width: 100%;
+    background-color: white;
+}
+
+.projectforminputdiv {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.titleinput {
+    width: 70%;
+}
+
+.descriptioninput {
+    width: 70%;
+}
+
+.userselectmenu {
+    width: 70%;
+}
+
+.projectformbuttondiv {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.projectformbuttons {
+    width: 70%;
+    display: flex;
+    justify-content: space-between;
+}

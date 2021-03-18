@@ -14,7 +14,6 @@ class App extends Component {
 				<Switch>
 
 					{/* <Route exact path="/" component={Landingpage} /> */}
-					{/* <Route exact path="/dashboard/users" component={ManageUsers} /> */}
 
 					{/*PRIVATE ROUTE ONLY ACCESSIBLE AFTER AUTHENTICATION*/}
 					{/* <Route exact path="/dashboard" render={(routeProps) => {

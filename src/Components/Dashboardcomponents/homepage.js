@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import Box from '../Auxcomponents/genericbox'
+import Box from '../Auxcomponents/tablebox'
 
 class Homepage extends Component {
     render() {

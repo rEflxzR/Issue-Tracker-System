@@ -67,6 +67,12 @@
     display: flex;
 }
 
+.rowtext {
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis; 
+}
+
 .bottom {
     display: flex;
     justify-content: space-between;

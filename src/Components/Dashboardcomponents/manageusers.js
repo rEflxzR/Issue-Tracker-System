@@ -5,7 +5,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select'
 import Button from '@material-ui/core/Button'
-import Box from '../Auxcomponents/genericbox'
+import Box from '../Auxcomponents/tablebox'
 import './manageusers.css'
 
 class ManageUsers extends Component {
@@ -58,7 +58,7 @@ class ManageUsers extends Component {
     }
 
     handleRoleAssignmentChange(evt) {
-        const { options } = evt.target
+        const { options } = evt.currentTarget
         const values = []
         for(let option of options) {
             if(option.selected) {
@@ -69,7 +69,7 @@ class ManageUsers extends Component {
     }
 
     handleClearClick() {
-        this.setState({ personName: [] })
+        this.setState({ personName: [], personRole: "" })
     }
 
     handleRoleMenuChange(evt) {
@@ -94,13 +94,13 @@ class ManageUsers extends Component {
         return(
             <div>
                 <div className="row mainrow">
-                    <div className="col col-4">
+                    <div className="userformcolumn col col-4">
+                    <h2 className="py-5 my-0 text-center text-light" style={{ backgroundColor: 'rgb(6, 6, 83)' }}><strong>Manage User Roles</strong></h2>
                         <div className="userform px-5">
                             <form>
-                                <h2 className="py-5 text-center">Manage User Roles</h2>
-                                <FormControl required className="userselectmenu">
+                                <FormControl required className="mt-5" style={{ width: '100%' }}>
                                     <InputLabel shrink>Select 1 or more Users</InputLabel>
-                                    <Select disabled={window.localStorage.getItem("role")==="admin" ? false : true} multiple native value={this.state.personName} onChange={this.handleRoleAssignmentChange}>
+                                    <Select multiple native value={this.state.personName} onChange={this.handleRoleAssignmentChange}>
                                         {
                                             this.state.userData.map((user) => {
                                                 return <option key={user.username} value={user.username}>{user.username}</option>
@@ -121,8 +121,8 @@ class ManageUsers extends Component {
                                 </div>
 
                                 <div className="formbuttons my-4">
-                                    <Button disabled={window.localStorage.getItem("role")==="admin" ? false : true} onClick={this.handleClearClick} size="large" variant="contained" color="primary">Clear Choices</Button>
-                                    <Button disabled={window.localStorage.getItem("role")==="admin" ? false : true} onClick={this.handleSubmitClick} size="large" variant="contained" color="primary">Submit</Button>
+                                    <Button disabled={window.localStorage.getItem("Role")==="admin" ? false : true} onClick={this.handleClearClick} size="large" variant="contained" color="primary">Clear Choices</Button>
+                                    <Button disabled={window.localStorage.getItem("Role")==="admin" ? false : true} onClick={this.handleSubmitClick} size="large" variant="contained" color="primary">Submit</Button>
                                 </div>
                             </form>
                         </div>
@@ -130,7 +130,11 @@ class ManageUsers extends Component {
                     <div className="col col-8">
                         {
                             [...Array(currentPageNumber)].map((e, index) => {
-                                return currentPageNumber==index+1 && <Box title="All Users" users={userData.slice(currentPageNumber*10-10, currentPageNumber*10)} togglePage={this.pageToggle} totalEntries={userData.length} page={currentPageNumber} />
+                                return currentPageNumber===index+1 && <Box title="All Users" body={userData.slice(currentPageNumber*10-10, currentPageNumber*10)} 
+                                togglePage={this.pageToggle} totalEntries={userData.length} page={currentPageNumber} 
+                                heading={[{title:"NAME"}, {title:"EMAIL"}, {title:"ROLE"}]}
+                                width={[3,6,3]}
+                                />
                             })
                         }
                     </div>
