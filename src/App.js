@@ -10,15 +10,15 @@ class App extends Component {
 	render() {
 		return (
 			<div className="landingpage">
-				<Userdashboard />
+				{/* <Userdashboard /> */}
 				<Switch>
 
-					{/* <Route exact path="/" component={Landingpage} /> */}
+					<Route exact path="/" component={Landingpage} />
 
 					{/*PRIVATE ROUTE ONLY ACCESSIBLE AFTER AUTHENTICATION*/}
-					{/* <Route exact path="/dashboard" render={(routeProps) => {
+					<Route exact path="/dashboard" render={(routeProps) => {
 						return <Userdashboard {...routeProps} />
-					}} /> */}
+					}} />
 				</Switch>
 			</div>
 		)

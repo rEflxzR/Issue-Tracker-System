@@ -13,7 +13,6 @@ class ManageUsers extends Component {
         super(props)
         this.state = {
             userData: [],
-            names: ["ReflxzR", "rEplan", "JanzWE", "qLimAxz", "MAC", "sLWx"],
             personName: [],
             personRole: "",
             currentPageNumber: 1,
@@ -28,7 +27,7 @@ class ManageUsers extends Component {
     }
 
     async componentDidMount() {
-        const url = `http://${window.location.hostname}:8000/users`
+        const url = `http://${window.location.hostname}:3000/users`
         await axios.get(url)
         .then((res) => {
             this.setState({ userData: res.data })
@@ -41,7 +40,7 @@ class ManageUsers extends Component {
 
     async componentDidUpdate(prevProps, prevState) {
         if(prevState.update!==this.state.update) {
-            const url = `http://${window.location.hostname}:8000/users`
+            const url = `http://${window.location.hostname}:3000/users`
             await axios.get(url)
             .then((res) => {
                 this.setState({ userData: res.data, update: false })
@@ -76,17 +75,21 @@ class ManageUsers extends Component {
         this.setState({ personRole: evt.currentTarget.getAttribute("data-value") })
     }
 
-    async handleSubmitClick() {
-        const url = `http://${window.location.hostname}:8000/updateusers`
-        const { personName, personRole } = this.state
-        await axios.post(url, {personName, personRole})
-        .then((res) => {
-            this.setState({ personName: [], personRole: "", update: true })
-        })
-        .catch((err) => {
-            console.log("Error Sending the Request to the Server")
-            console.log(err)
-        })
+    async handleSubmitClick(evt) {
+        evt.preventDefault()
+        const form = evt.currentTarget.form
+        if(form.reportValidity()) {
+            const url = `http://${window.location.hostname}:3000/updateusers`
+            const { personName, personRole } = this.state
+            await axios.post(url, {personName, personRole})
+            .then((res) => {
+                this.setState({ personName: [], personRole: "", update: true })
+            })
+            .catch((err) => {
+                console.log("Error Sending the Request to the Server")
+                console.log(err)
+            })
+        }
     }
 
     render() {
@@ -121,8 +124,8 @@ class ManageUsers extends Component {
                                 </div>
 
                                 <div className="formbuttons my-4">
-                                    <Button disabled={window.localStorage.getItem("Role")==="admin" ? false : true} onClick={this.handleClearClick} size="large" variant="contained" color="primary">Clear Choices</Button>
-                                    <Button disabled={window.localStorage.getItem("Role")==="admin" ? false : true} onClick={this.handleSubmitClick} size="large" variant="contained" color="primary">Submit</Button>
+                                    <Button disabled={window.localStorage.getItem("Role")==="admin" ? false : true} onClick={this.handleClearClick} size="large" variant="contained" color="secondary"><strong>Clear Choices</strong></Button>
+                                    <Button disabled={window.localStorage.getItem("Role")==="admin" ? false : true} onClick={this.handleSubmitClick} size="large" variant="contained" color="primary"><strong>Submit</strong></Button>
                                 </div>
                             </form>
                         </div>

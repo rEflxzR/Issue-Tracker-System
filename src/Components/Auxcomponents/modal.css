@@ -1,0 +1,19 @@
+.modal-hide {
+    display: none;
+}
+
+.modal-display {
+    display: block;
+    top: 0;
+    left: 0;
+    position: fixed;
+    min-height: 100vh;
+    min-width: 100vw;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.main-modal {
+    background-color: white;
+    width: 50%;
+    height: 50%;
+}

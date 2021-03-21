@@ -4,15 +4,17 @@ const Schema = mongoose.Schema
 const projectSchema = new Schema({
     title: {
         type: String,
-        unique: true,
         required: true
     },
     description: {
         type: String,
-        unique: true,
         required: true
     },
-    projectmanager: {
+    dateOpened: {
+        type: String,
+        required: true
+    },
+    manager: {
         type: String,
         required: true
     },
@@ -22,12 +24,16 @@ const projectSchema = new Schema({
     },
     testers: {
         type: Array,
-        require: true
+        required: true
     },
     tickets: {
         type: Array,
         default: []
-    }
+    },
+    status: {
+        type: String,
+        default: "open"
+    },
 })
 
 module.exports = mongoose.model('Project', projectSchema)

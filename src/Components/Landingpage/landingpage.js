@@ -30,9 +30,6 @@ class Landingpage extends Component {
 		else if(evt.currentTarget.text[0]==='F') {
 			this.setState({ currentbox: 'resetpassword' })
 		}
-		// else if(evt.currentTarget.text[0]==='N') {
-
-		// }
 		else {
 			this.setState({ currentbox: 'demouser' })
 		}

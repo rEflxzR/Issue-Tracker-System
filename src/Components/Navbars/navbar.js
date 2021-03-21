@@ -122,7 +122,7 @@ export default function Navbar() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h5" noWrap><strong>Hello {window.localStorage.Name}</strong></Typography>
+          <Typography className="text-capitalize" variant="h5" noWrap><strong>Hello {window.localStorage.Name}</strong></Typography>
         </Toolbar>
       </AppBar>
       <Drawer

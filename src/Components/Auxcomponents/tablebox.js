@@ -51,7 +51,7 @@ class Box extends Component {
                                                     })
                                                 }
                                                 {
-                                                    this.props.showButtons ? <Button key={index} value={entity[this.props.buttonUUID]} className="text-light" onClick={this.handleBoxButtonClick} size="small" variant="contained" style={{ backgroundColor: '#1fab00' }}><strong>{this.props.buttonText}</strong></Button> : null
+                                                    this.props.showButtons ? <td><Button value={entity[this.props.buttonUUID]} className="text-light" onClick={this.handleBoxButtonClick} size="small" variant="contained" style={{ backgroundColor: '#1fab00' }}><strong>{this.props.buttonText}</strong></Button></td> : null
                                                 }
                                                 </tr>
                                         })

@@ -2,8 +2,6 @@ const express = require("express")
 const { check, validationResult } = require('express-validator')
 const mongodb = require("mongodb").MongoClient
 const router = express.Router()
-const path = require("path")
-const fs = require('fs')
 const crypto = require('crypto')
 const util = require('util')
 const scrypt = util.promisify(crypto.scrypt)
@@ -28,12 +26,6 @@ router.get('/cookie-session', (req, res) => {
         res.status(400).send("Fail")
     }
 })
-
-
-router.get('/*', function (req, res) {
-	res.sendFile(path.join(__dirname, '../../build', 'index.html'));
-});
-
 
 
 // -------------------------------POST ROUTES----------------------------------

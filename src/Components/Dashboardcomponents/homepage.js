@@ -1,27 +1,34 @@
 import React, { Component } from 'react'
-import Box from '../Auxcomponents/tablebox'
+import Modal from '../Auxcomponents/modal'
 
 class Homepage extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            showModal: false
+        }
+
+        this.displayModal = this.displayModal.bind(this)
+    }
+
+    displayModal() {
+        this.setState(currState => ({
+            showModal: !currState.showModal
+        }))
+    }
+
+
     render() {
         return (
             <div className="d-flex justify-content-center">
-                <div style={{ width: '80vw' }}>
-                    <div className="row d-flex justify-content-between px-5 mx-5" style={{ height: '50vh' }}>
-                        {/* <div className="col col-5 px-0">
-                            <Box />
-                        </div>
-                        <div className="col col-5 px-0">
-                            <Box />
-                        </div> */}
+                <div className="row" style={{ width: '80vw', height: '75vh' }}>
+                    <div className="mod">
+                        <button onClick={this.displayModal} className="btn btn-lg btn-success">TOGGLE MODAL</button>
+
+                        <Modal display={this.state.showModal} toggleDisplay={this.displayModal}
+                        />
+
                     </div>
-                    {/* <div className="row d-flex justify-content-between px-5 mx-5">
-                        <div className="col col-5 px-0">
-                            <Box />
-                        </div>
-                        <div className="col col-5 px-0">
-                            <Box />
-                        </div>
-                    </div> */}
                 </div>
             </div>
         )
