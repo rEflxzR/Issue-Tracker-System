@@ -28,7 +28,7 @@ class ManageProjects extends Component {
             formError: false,
             update: false,
             displayModal: false,
-            modalType: "detail"
+            modalType: ""
         }
 
         this.handleProjectTextInputChange = this.handleProjectTextInputChange.bind(this)
@@ -130,12 +130,12 @@ class ManageProjects extends Component {
         await axios.get(url, {headers: {title}})
         .then((res) => {
             console.log("Request Sent to the Server Successfully")
-            this.setState({ projectDetails: res.data, displayModal: true })
+            this.setState({ projectDetails: res.data, displayModal: true, modalType: "detail" })
         })
         .catch((err) => {
             console.log("Error Sending Request to the Server")
             console.log(err)
-            this.setState({ projectDetails: [], displayModal: false })
+            this.setState({ projectDetails: [], displayModal: false, modalType: "" })
         })
     }
 
@@ -211,7 +211,8 @@ class ManageProjects extends Component {
                                 return currentPageNumber===index+1 && <Box title="All Projects" body={projectData.slice(currentPageNumber*10-10, currentPageNumber*10)} 
                                 togglePage={this.pageToggle} totalEntries={projectData.length} page={currentPageNumber} 
                                 heading={[{title:"TITLE"}, {title:"MANAGER"}, {title:"STATUS"}, {title: ""}]}
-                                width={[4,3,3,2]} showButtons={true} buttonText="Details" buttonUUID="title" detailsModal={this.openDetailsModal}
+                                width={[4,3,3,2]} 
+                                detailButton={true} buttonUUID="title" detailsModal={this.openDetailsModal}
                                 />
                             })
                         }
