@@ -1,39 +1,13 @@
 const express = require("express")
 const mongodb = require("mongodb").MongoClient
-const dashboardrouter = express.Router()
+const router = express.Router()
 const Project = require('../models/project')
 
 
 //======================================= GET ROUTES =============================================
 
-dashboardrouter.get('/users', async (req, res) => {
-	const users = []
-	await mongodb.connect('mongodb://localhost:27017/bugtracker')
-	.then((client) => {
-		return client.db().collection('users').find({}).toArray().then((res) => {
-			client.close()
-			res.map((user) => {
-				[ username, email, role ] = [user.username, user.email, user.role]
-				if(role=="projectmanager") {
-					role = "Project Manager"
-				}
-				users.push({username, email, role})
-			})
-			return
-		}).catch((err) => {
-			console.log(err)
-		})
-	})
-	.catch((err) => {
-		console.log(err)
-		console.log("Database Connection Failed")
-	})
 
-	res.status(200).send(users)
-})
-
-
-dashboardrouter.get('/userandprojectdetails', async (req, res) => {
+router.get('/userandprojectdetails', async (req, res) => {
 	const result = []
 	await mongodb.connect('mongodb://localhost:27017/bugtracker')
 	.then(async (client) => {
@@ -59,7 +33,6 @@ dashboardrouter.get('/userandprojectdetails', async (req, res) => {
 	const developers = []
 	const testers = []
 	const projects = []
-	const projectsFullDetails = []
 	result[0].forEach((user) => {
 		const { username, role } = user
 		if(role=="projectmanager") {
@@ -74,21 +47,20 @@ dashboardrouter.get('/userandprojectdetails', async (req, res) => {
 	})
 
 	result[1].forEach((project) => {
-		const { title, description, dateOpened, manager, developers, testers, tickets, status } = project
+		const { title, dateOpened, manager, status } = project
 		projects.push({title, manager, status, dateOpened})
-		projectsFullDetails.push({title, description, dateOpened, manager, developers, testers, tickets, status})
-	})
+=	})
 
 	if(result.length) {
-		res.status(200).json({msg: "Success", content: {managers, developers, testers, projects, projectsFullDetails}})	
+		res.status(200).json({msg: "Success", content: {managers, developers, testers, projects}})	
 	}
 	else {
-		res.status(204).send("No Such Users Found")
+		res.status(204).send("No Such Users and Projects Found")
 	}
 })
 
 
-dashboardrouter.get('/allprojects', async (req, res) => {
+router.get('/allprojects', async (req, res) => {
 	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker')
 	.then((client) => {
 		return client.db().collection('projects').find({}).toArray()
@@ -102,13 +74,11 @@ dashboardrouter.get('/allprojects', async (req, res) => {
 
 	if(result.length) {
 		const finalresult = []
-		const finalresultFullDetails = []
 		result.forEach((project) => {
-			const { title, description, dateOpened, manager, developers, testers, tickets, status } = project
+			const { title, dateOpened, manager, status } = project
 			finalresult.push({ title, manager, status, dateOpened })
-			finalresultFullDetails.push({ title, description, dateOpened, manager, developers, testers, tickets, status })
 		})
-		res.status(200).json({ msg: "Success", content: {finalresult, finalresultFullDetails} })
+		res.status(200).json({ msg: "Success", content: {finalresult} })
 	}
 	else {
 		res.status(400).send("Fail")
@@ -117,27 +87,10 @@ dashboardrouter.get('/allprojects', async (req, res) => {
 
 
 
-
 //======================================= POST ROUTES =============================================
 
-dashboardrouter.post('/updateusers', async (req, res) => {
-	const { personName, personRole } = req.body
-	await mongodb.connect('mongodb://localhost:27017/bugtracker')
-	.then((client) => {
-		personName.forEach((name) => {
-			client.db().collection('users').findOneAndUpdate({ username: name }, { $set: { role: personRole } })
-		})
-		client.close()
-	})
-	.catch((err) => {
-		console.log("Could Not Connect to the Database Server")
-	})
 
-	res.status(200).send("Success")
-})
-
-
-dashboardrouter.post('/newproject', async (req, res) => {
+router.post('/newproject', async (req, res) => {
 	const { title, description, Manager, Developer, Tester, datetime } = req.body
 	const newProject = new Project({ title, description, dateOpened: datetime, manager: Manager, developers: Developer, testers: Tester })
 	const project = await mongodb.connect('mongodb://localhost:27017/bugtracker')
@@ -176,5 +129,4 @@ dashboardrouter.post('/newproject', async (req, res) => {
 })
 
 
-
-module.exports = dashboardrouter
+module.exports = router

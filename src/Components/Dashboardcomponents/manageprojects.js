@@ -7,6 +7,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select'
 import Button from '@material-ui/core/Button'
 import Box from '../Auxcomponents/tablebox'
+import Modal from '../Auxcomponents/modal'
 import './manageprojects.css'
 
 class ManageProjects extends Component {
@@ -22,28 +23,31 @@ class ManageProjects extends Component {
             Developer: [],
             Tester: [],
             projectData: [],
-            allProjectDetails: [],
+            projectDetails: [],
             currentPageNumber: 1,
             formError: false,
-            update: false
+            update: false,
+            displayModal: false,
+            modalType: "detail"
         }
 
         this.handleProjectTextInputChange = this.handleProjectTextInputChange.bind(this)
         this.handleProjectManagerChange = this.handleProjectManagerChange.bind(this)
+        this.handleSubmitButtonClick = this.handleSubmitButtonClick.bind(this)
+        this.handleClearButtonClick = this.handleClearButtonClick.bind(this)
         this.handleDeveloperChange = this.handleDeveloperChange.bind(this)
         this.handleTesterChange = this.handleTesterChange.bind(this)
-        this.handleClearButtonClick = this.handleClearButtonClick.bind(this)
-        this.handleSubmitButtonClick = this.handleSubmitButtonClick.bind(this)
-        this.pageToggle = this.pageToggle.bind(this)
         this.openDetailsModal = this.openDetailsModal.bind(this)
+        this.toggleModalDisplay = this.toggleModalDisplay.bind(this)
+        this.pageToggle = this.pageToggle.bind(this)
     }
 
     async componentDidMount() {
-        const url = `http://${window.location.hostname}:3000/userandprojectdetails`
+        const url = `http://${window.location.hostname}:8000/userandprojectdetails`
         await axios.get(url)
         .then((res) => {
-            const { managers, developers, testers, projects, projectsFullDetails } = res.data.content
-            this.setState({ projectManagers: managers, developers: developers, testers: testers, projectData: projects, allProjectDetails: projectsFullDetails })
+            const { managers, developers, testers, projects } = res.data.content
+            this.setState({ projectManagers: managers, developers: developers, testers: testers, projectData: projects })
         })
         .catch((err) => {
             console.log("Some Error Occurred While Sending the Request to the Server")
@@ -53,9 +57,9 @@ class ManageProjects extends Component {
 
     async componentDidUpdate(prevProps, prevState) {
         if(prevState.update!==this.state.update) {
-            const url = `http://${window.location.hostname}:3000/allprojects`
+            const url = `http://${window.location.hostname}:8000/allprojects`
             await axios.get(url).then((res) => {
-                this.setState({ projectData: res.data.content.finalresult, allProjectDetails: res.data.content.finalresultFullDetails, update: false })
+                this.setState({ projectData: res.data.content.finalresult, update: false })
             })
             .catch((err) => {
                 console.log("Failed to Get New Projects from the Server")
@@ -99,12 +103,11 @@ class ManageProjects extends Component {
         evt.preventDefault()
         const form = evt.currentTarget.form
         if(form.reportValidity()) {
-            const url = `http://${window.location.hostname}:3000/newproject`
+            const url = `http://${window.location.hostname}:8000/newproject`
             const { title, description, Developer, Manager, Tester } = this.state
             const currentdate = new Date() 
             const datetime = currentdate.getDate() + "/" + (currentdate.getMonth()+1)  + "/" 
-            + currentdate.getFullYear() + ", " + currentdate.getHours() 
-            + ":"  + currentdate.getMinutes() + ":" + currentdate.getSeconds();
+            + currentdate.getFullYear() + ", " + currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true })
 
             await axios.post(url, {title, description, Developer, Manager, Tester, datetime})
             .then((res) => {
@@ -121,8 +124,25 @@ class ManageProjects extends Component {
         this.setState({ currentPageNumber: param })
     }
 
-    openDetailsModal(val) {
-        console.log(val)
+    async openDetailsModal(val) {
+        const title = val
+        const url = `http://${window.location.hostname}:8000/projectdetails`
+        await axios.get(url, {headers: {title}})
+        .then((res) => {
+            console.log("Request Sent to the Server Successfully")
+            this.setState({ projectDetails: res.data, displayModal: true })
+        })
+        .catch((err) => {
+            console.log("Error Sending Request to the Server")
+            console.log(err)
+            this.setState({ projectDetails: [], displayModal: false })
+        })
+    }
+
+    toggleModalDisplay(param) {
+        if(param.currentTarget===param.target) {
+            this.setState({ displayModal: false })
+        }
     }
 
     render() {
@@ -195,6 +215,11 @@ class ManageProjects extends Component {
                                 />
                             })
                         }
+                    </div>
+                    <div className="detialsModal">
+                        <Modal display={this.state.displayModal} modalType={this.state.modalType} toggleDisplay={this.toggleModalDisplay} 
+                            projectDetails={this.state.projectDetails} detailDescription={true}
+                        />
                     </div>
                 </div>
             </div>

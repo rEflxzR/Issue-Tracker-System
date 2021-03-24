@@ -1,0 +1,60 @@
+.display {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.display-header {
+    display: flex;
+    justify-content: center;
+}
+
+.display-header>div {
+    position: absolute;
+    top: 0;
+    z-index: 2;
+    height: 15%;
+    width: 93%;
+    background-color: #2cd499;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.display-footer {
+    position: absolute;
+    bottom: 0;
+    height: 93%;
+    width: 100%;
+    background-color: white;
+    border-radius: 5px;
+    border: solid #2cd499 7px;
+}
+
+.details-table {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.tabledata {
+    position: absolute;
+    bottom: 0;
+    height: 90%;
+    width: 100%;
+}
+
+.flatrow {
+    display: flex;
+    justify-content: start;
+    padding-left: 5%;
+    padding-right: 5%;
+}
+
+.datarow {
+    display: flex;
+    justify-content: space-between;
+    padding-left: 5%;
+    padding-right: 5%;
+}

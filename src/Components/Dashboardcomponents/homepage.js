@@ -5,16 +5,20 @@ class Homepage extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            showModal: false
+            showModal: false,
+            modalType: "delete"
         }
 
         this.displayModal = this.displayModal.bind(this)
     }
 
-    displayModal() {
-        this.setState(currState => ({
-            showModal: !currState.showModal
-        }))
+    displayModal(param) {
+        param.preventDefault()
+        if(param.currentTarget===param.target) {
+            this.setState(currState => ({
+                showModal: !currState.showModal
+            }))
+        }
     }
 
 
@@ -25,7 +29,7 @@ class Homepage extends Component {
                     <div className="mod">
                         <button onClick={this.displayModal} className="btn btn-lg btn-success">TOGGLE MODAL</button>
 
-                        <Modal display={this.state.showModal} toggleDisplay={this.displayModal}
+                        <Modal modalType={this.state.modalType} display={this.state.showModal} toggleDisplay={this.displayModal}
                         />
 
                     </div>

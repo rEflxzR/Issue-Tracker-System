@@ -5,7 +5,9 @@ const cors = require("cors")
 const cookieSession = require("cookie-session")
 const path = require("path")
 const authroutes = require("./routes/authroutes.js")
-const dashboardroutes = require("./routes/dashboardroutes.js")
+const managerolesroutes = require("./routes/managerolesroutes.js")
+const manageprojectsroutes = require("./routes/manageprojectsroutes.js")
+const userprojectsroutes = require("./routes/userprojectsroutes.js")
 const port = process.env.PORT || 3000
 
 app.use(cors())
@@ -16,7 +18,9 @@ app.use(cookieSession({
 }))
 app.use(express.static(path.join(__dirname, '../build')))
 app.use(authroutes)
-app.use(dashboardroutes)
+app.use(managerolesroutes)
+app.use(manageprojectsroutes)
+app.use(userprojectsroutes)
 
 app.get('/*', function (req, res) {
 	res.sendFile(path.join(__dirname, '../build', 'index.html'))

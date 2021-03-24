@@ -7,13 +7,20 @@
     top: 0;
     left: 0;
     position: fixed;
-    min-height: 100vh;
-    min-width: 100vw;
-    background: rgba(0, 0, 0, 0.7);
+    height: 100vh;
+    width: 100vw;
+    background: rgba(0, 0, 0, 0.92);
 }
 
 .main-modal {
-    background-color: white;
-    width: 50%;
-    height: 50%;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-box {
+    height: 60vh;
+    width: 60vw;
 }
