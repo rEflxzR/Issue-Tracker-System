@@ -150,7 +150,7 @@ class ManageProjects extends Component {
         return (
             <div>
                 <div className="userprojectrow row">
-                    <div className="projectform col col-3">
+                    <div className="projectform col col-4">
                         <form>
                             <h2 className="text-center text-light py-5" style={{ backgroundColor: 'rgb(6, 6, 83)' }}><strong>NEW PROJECT</strong></h2>
                             <div className="projectforminputdiv my-4">
@@ -205,13 +205,13 @@ class ManageProjects extends Component {
                             </div>
                         </form>
                     </div>
-                    <div className="projectbox col col-9">
+                    <div className="projectbox col col-7">
                         {
                             [...Array(currentPageNumber)].map((e, index) => {
                                 return currentPageNumber===index+1 && <Box title="All Projects" body={projectData.slice(currentPageNumber*10-10, currentPageNumber*10)} 
                                 togglePage={this.pageToggle} totalEntries={projectData.length} page={currentPageNumber} 
-                                heading={[{title:"TITLE"}, {title:"MANAGER"}, {title:"STATUS"}, {title: "DATE CREATED"}, {title: ""}]}
-                                width={[3,3,2,3,1]} showButtons={true} buttonText="Details" buttonUUID="title" detailsModal={this.openDetailsModal}
+                                heading={[{title:"TITLE"}, {title:"MANAGER"}, {title:"STATUS"}, {title: ""}]}
+                                width={[4,3,3,2]} showButtons={true} buttonText="Details" buttonUUID="title" detailsModal={this.openDetailsModal}
                                 />
                             })
                         }
