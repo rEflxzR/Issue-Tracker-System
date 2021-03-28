@@ -2,6 +2,9 @@
     position: relative;
     height: 100%;
     width: 100%;
+    opacity: 1;
+    animation: fadeIn linear 1s;
+    -webkit-animation: fadeIn linear 1s;
 }
 
 .display-header {
@@ -47,7 +50,7 @@
 
 .flatrow {
     display: flex;
-    justify-content: start;
+    justify-content: flex-start;
     padding-left: 5%;
     padding-right: 5%;
 }

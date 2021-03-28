@@ -129,7 +129,6 @@ class ManageProjects extends Component {
         const url = `http://${window.location.hostname}:8000/projectdetails`
         await axios.get(url, {headers: {title}})
         .then((res) => {
-            console.log("Request Sent to the Server Successfully")
             this.setState({ projectDetails: res.data, displayModal: true, modalType: "detail" })
         })
         .catch((err) => {
@@ -174,7 +173,7 @@ class ManageProjects extends Component {
                             <div className="projectforminputdiv my-4">
                                 <FormControl required className="userselectmenu">
                                     <InputLabel>Developers</InputLabel>
-                                    <Select value={this.state.Developer} onChange={this.handleDeveloperChange}>
+                                    <Select renderValue={() => {return this.state.Developer.join(", ")}} value={this.state.Developer} onChange={this.handleDeveloperChange}>
                                         {
                                             this.state.developers.map((dev) => {
                                                 return <MenuItem key={dev.username} value={dev.username}>{dev.username}</MenuItem>
@@ -186,7 +185,7 @@ class ManageProjects extends Component {
                             <div className="projectforminputdiv my-4">
                                 <FormControl required className="userselectmenu">
                                     <InputLabel>Testers</InputLabel>
-                                    <Select value={this.state.Tester} onChange={this.handleTesterChange}>
+                                    <Select renderValue={() => {return this.state.Tester.join(", ")}} value={this.state.Tester} onChange={this.handleTesterChange}>
                                         {
                                             this.state.testers.map((test) => {
                                                 return <MenuItem key={test.username} value={test.username}>{test.username}</MenuItem>
@@ -212,7 +211,7 @@ class ManageProjects extends Component {
                                 togglePage={this.pageToggle} totalEntries={projectData.length} page={currentPageNumber} 
                                 heading={[{title:"TITLE"}, {title:"MANAGER"}, {title:"STATUS"}, {title: ""}]}
                                 width={[4,3,3,2]} 
-                                detailButton={true} buttonUUID="title" detailsModal={this.openDetailsModal}
+                                detailButton={true} buttonContentId="title" detailsModal={this.openDetailsModal}
                                 />
                             })
                         }

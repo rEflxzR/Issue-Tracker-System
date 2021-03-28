@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import clsx from 'clsx';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
@@ -122,7 +122,7 @@ export default function Navbar() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography className="text-capitalize" variant="h5" noWrap><strong>Hello {window.localStorage.Name}</strong></Typography>
+          <Typography className="text-capitalize" variant="h5" noWrap><strong>Hello {window.localStorage.Name}</strong> | <span className="text-capitalize h6">{window.localStorage.Role==="projectmanager" ? "project manager" : window.localStorage.Role}</span></Typography>
         </Toolbar>
       </AppBar>
       <Drawer

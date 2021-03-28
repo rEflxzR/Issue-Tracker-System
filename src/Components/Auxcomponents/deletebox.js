@@ -7,7 +7,7 @@ class Deletebox extends Component {
             <div className="deletebox">
                 <div className="deletebox-header">
                     <div>
-                        <h1 className="text-center h1"><strong>DELETE ENTRY BOX</strong></h1>
+                        <h1 className="text-center h1 my-0"><strong>WARNING!!!</strong></h1>
                     </div>
                 </div>
                 <div className="deletebox-footer"></div>

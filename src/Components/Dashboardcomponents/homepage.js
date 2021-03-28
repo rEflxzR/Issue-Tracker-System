@@ -1,40 +1,9 @@
 import React, { Component } from 'react'
-import Modal from '../Auxcomponents/modal'
 
 class Homepage extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            showModal: false,
-            modalType: "delete"
-        }
-
-        this.displayModal = this.displayModal.bind(this)
-    }
-
-    displayModal(param) {
-        param.preventDefault()
-        if(param.currentTarget===param.target) {
-            this.setState(currState => ({
-                showModal: !currState.showModal
-            }))
-        }
-    }
-
-
     render() {
         return (
-            <div className="d-flex justify-content-center">
-                <div className="row" style={{ width: '80vw', height: '75vh' }}>
-                    <div className="mod">
-                        <button onClick={this.displayModal} className="btn btn-lg btn-success">TOGGLE MODAL</button>
-
-                        <Modal modalType={this.state.modalType} display={this.state.showModal} toggleDisplay={this.displayModal}
-                        />
-
-                    </div>
-                </div>
-            </div>
+            <h1 className="text-light">THIS IS THE HOME OF THE DASHBOARD PAGE</h1>
         )
     }
 }

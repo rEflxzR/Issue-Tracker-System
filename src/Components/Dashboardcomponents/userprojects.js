@@ -22,12 +22,10 @@ class UserProjects extends Component {
     }
 
     async componentDidMount() {
-        console.log("Sending Request to the Backend")
         const url = `http://${window.location.hostname}:8000/userprojects`
         const username = window.localStorage.getItem("Name")
         await axios.get(url, {headers: {username}}, {withCredentials: true})
         .then((res) => {
-            console.log("Request Sent to the Server Successfully")
             this.setState({ minProjectsData: res.data })
         })
         .catch((err) => {
@@ -35,20 +33,38 @@ class UserProjects extends Component {
         })
     }
 
-    openDetailsModal() {
-        this.setState({ displayModal: true, modalType: "detail" })
+    async openDetailsModal(param) {
+        const url = `http://${window.location.hostname}:8000/myprojectdetails`
+        const title = param
+        await axios.get(url, {headers: {title}}, {withCredentials: true})
+        .then((res) => {
+            this.setState({ detailedProjectsData: res.data, displayModal: true, modalType: "detail" })
+        })
+        .catch((err) => {
+            console.log("Request Sent to the Server Failed")
+        })
     }
 
-    openEditModal() {
-        this.setState({ displayModal: true, modalType: "edit" })
+    async openEditModal(param) {
+        const url = `http://${window.location.hostname}:8000/myprojectdetails`
+        const title = param
+        await axios.get(url, {headers: {title}}, {withCredentials: true})
+        .then((res) => {
+            this.setState({ detailedProjectsData: res.data, displayModal: true, modalType: "edit" })
+        })
+        .catch((err) => {
+            console.log("Request Sent to the Server Failed")
+        })
     }
 
     openDeleteModal() {
         this.setState({ displayModal: true, modalType: "delete" })
     }
 
-    toggleModalDisplay() {
-
+    toggleModalDisplay(param) {
+        if(param.currentTarget===param.target) {
+            this.setState({ displayModal: false, detailedProjectsData: [], modalType: "" })
+        }
     }
 
     render() {
@@ -63,16 +79,16 @@ class UserProjects extends Component {
                                 togglePage={this.pageToggle} totalEntries={minProjectsData.length} page={currentPageNumber} 
                                 heading={[{title:"TITLE"}, {title:"MANAGER"}, {title:"STATUS"}, {title: ""}, {title: ""}, {title: ""}]}
                                 width={[3,3,2,1,1,2]} 
-                                detailButton={true} buttonUUID="title" detailsModal={this.openDetailsModal}
-                                editButton={true} buttonUUID="title" editModal={this.openEditModal}
-                                deleteButton={true} buttonUUID="title" deleteModal={this.openDeleteModal}
+                                detailButton={true} buttonContentId="title" detailsModal={this.openDetailsModal}
+                                editButton={true} editModal={this.openEditModal}
+                                deleteButton={true} deleteModal={this.openDeleteModal}
                                 />
                             })
                         }
                     </div>
                     <div className="userprojectmodal">
                         <Modal display={this.state.displayModal} modalType={this.state.modalType} toggleDisplay={this.toggleModalDisplay} 
-                            projectDetails={this.state.projectDetails} detailDescription={true}
+                            projectDetails={this.state.detailedProjectsData} detailDescription={true}
                         />
                     </div>
                 </div>

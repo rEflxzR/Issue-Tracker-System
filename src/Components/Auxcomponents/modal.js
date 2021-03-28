@@ -18,28 +18,28 @@ class Modal extends Component {
     render() {
         const moddedProps = {}
         const moddedPropsKeys = []
-        if(this.props.projectDetails) {
-            const projects = Object.keys(this.props.projectDetails).sort((a, b) => {
-                return a-b
-            })
+        if(this.props.projectDetails && this.props.modalType==="detail") {
+            const projects = Object.keys(this.props.projectDetails)
             projects.map((key) => {
-                if(key!=="description" && key!=="title") {
-                    if(typeof(this.props.projectDetails[key])==="object") {
-                        moddedProps[key] = this.props.projectDetails[key].join(", ")
-                    }
-                    else {
-                        moddedProps[key] = this.props.projectDetails[key]
-                    }
+                if(key==="developers" || key==="testers") {
+                    moddedProps[`project ${key}`] = this.props.projectDetails[key].join(", ")
+                    moddedPropsKeys.push(`project ${key}`)
+                }
+                else if(key!=="description" && key!=="title") {
+                    moddedProps[key] = this.props.projectDetails[key]
                     moddedPropsKeys.push(key)
                 }
+                return null
             })
+            moddedPropsKeys.sort((a, b) => { return a.localeCompare(b) })
         }
+
         return(
             <div className={this.props.display ? "modal-display" : "modal-hide"}>
                 <div onClick={this.closeModal} className="main-modal">
-                    <div className="modal-box">
+                    <div onClick={this.closeModal} className="modal-box">
                         {this.props.modalType==="detail" && <Displaybox moddedProps={moddedProps} moddedPropsKeys={moddedPropsKeys} title={this.props.projectDetails.title} description={this.props.projectDetails.description} />}
-                        {this.props.modalType==="edit" && <Editbox />}
+                        {this.props.modalType==="edit" && <Editbox projectInfo={{...this.props.projectDetails}} />}
                         {this.props.modalType==="delete" && <Deletebox />}
                     </div>
                 </div>
