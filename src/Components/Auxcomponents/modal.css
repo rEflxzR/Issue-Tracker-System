@@ -24,7 +24,7 @@
 
 .modal-box {
     height: 60vh;
-    width: 60vw;
+    width: 80vw;
     display: flex;
     justify-content: center;
     animation: fadeIn linear 0.5s;

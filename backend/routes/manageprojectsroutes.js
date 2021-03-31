@@ -49,7 +49,7 @@ router.get('/userandprojectdetails', async (req, res) => {
 	result[1].forEach((project) => {
 		const { title, dateOpened, manager, status } = project
 		projects.push({title, manager, status, dateOpened})
-=	})
+	})
 
 	if(result.length) {
 		res.status(200).json({msg: "Success", content: {managers, developers, testers, projects}})	

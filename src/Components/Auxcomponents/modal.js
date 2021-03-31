@@ -36,11 +36,12 @@ class Modal extends Component {
 
         return(
             <div className={this.props.display ? "modal-display" : "modal-hide"}>
-                <div onClick={this.closeModal} className="main-modal">
-                    <div onClick={this.closeModal} className="modal-box">
+                <div onClick={this.closeModal} className="main-modal row">
+                    <div onClick={this.closeModal} className="modal-box row offset-1">
                         {this.props.modalType==="detail" && <Displaybox moddedProps={moddedProps} moddedPropsKeys={moddedPropsKeys} title={this.props.projectDetails.title} description={this.props.projectDetails.description} />}
-                        {this.props.modalType==="edit" && <Editbox projectInfo={{...this.props.projectDetails}} />}
-                        {this.props.modalType==="delete" && <Deletebox />}
+                        {this.props.modalType==="edit" && <div className={`col col-${this.props.showTicketComments ? 6 : 8}`}><Editbox projectInfo={{...this.props.projectDetails}} closeModal={this.closeModal} /></div>}
+                        {this.props.showTicketComments && <div className="col col-6">{this.props.modalType==="edit" && <Editbox projectInfo={{...this.props.projectDetails}} closeModal={this.closeModal} />}</div>}
+                        {this.props.modalType==="delete" && <Deletebox type={this.props.type} title={this.props.projectDetails.title} closeModal={this.closeModal} />}
                     </div>
                 </div>
             </div>

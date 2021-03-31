@@ -12,12 +12,14 @@ class UserProjects extends Component {
             detailedProjectsData: [],
             displayModal: false,
             modalType: "",
-            currentPageNumber: 1
+            currentPageNumber: 1,
+            updateDisplay: false
         }
 
-        this.openDetailsModal = this.openDetailsModal.bind(this)
+        this.pageToggle = this.pageToggle.bind(this)
         this.openEditModal = this.openEditModal.bind(this)
         this.openDeleteModal = this.openDeleteModal.bind(this)
+        this.openDetailsModal = this.openDetailsModal.bind(this)
         this.toggleModalDisplay = this.toggleModalDisplay.bind(this)
     }
 
@@ -31,6 +33,20 @@ class UserProjects extends Component {
         .catch((err) => {
             console.log("Could Not Send a Request to the Server")
         })
+    }
+
+    async componentDidUpdate(prevProps, prevState) {
+        if(prevState.updateDisplay!==this.state.updateDisplay) {
+            const url = `http://${window.location.hostname}:8000/userprojects`
+            const username = window.localStorage.getItem("Name")
+            await axios.get(url, {headers: {username}}, {withCredentials: true})
+            .then((res) => {
+                this.setState({ minProjectsData: res.data, updateDisplay: false })
+            })
+            .catch((err) => {
+                console.log("Could Not Send a Request to the Server")
+            })
+        }
     }
 
     async openDetailsModal(param) {
@@ -57,14 +73,21 @@ class UserProjects extends Component {
         })
     }
 
-    openDeleteModal() {
-        this.setState({ displayModal: true, modalType: "delete" })
+    openDeleteModal(param) {
+        this.setState({ detailedProjectsData: {title: param}, displayModal: true, modalType: "delete" })
     }
 
     toggleModalDisplay(param) {
+        if(param==="closeModal") {
+            this.setState({ displayModal: false, detailedProjectsData: [], modalType: "", updateDisplay: true })
+        }
         if(param.currentTarget===param.target) {
             this.setState({ displayModal: false, detailedProjectsData: [], modalType: "" })
         }
+    }
+
+    pageToggle(param) {
+        this.setState({ currentPageNumber: param })
     }
 
     render() {
@@ -87,9 +110,9 @@ class UserProjects extends Component {
                         }
                     </div>
                     <div className="userprojectmodal">
-                        <Modal display={this.state.displayModal} modalType={this.state.modalType} toggleDisplay={this.toggleModalDisplay} 
-                            projectDetails={this.state.detailedProjectsData} detailDescription={true}
-                        />
+                        {this.state.displayModal && <Modal display={this.state.displayModal} modalType={this.state.modalType} toggleDisplay={this.toggleModalDisplay} 
+                            projectDetails={this.state.detailedProjectsData} type="project"
+                        />}
                     </div>
                 </div>
             </div>

@@ -1,7 +1,7 @@
 .deletebox {
     position: relative;
-    height: 70%;
-    width: 60%;
+    height: 60%;
+    width: 40%;
 }
 
 .deletebox-header {
@@ -25,8 +25,21 @@
 .deletebox-footer {
     position: absolute;
     bottom: 0;
-    height: 95%;
+    height: 93%;
     width: 100%;
     background-color: white;
     border-radius: 5px;
+}
+
+.deleteModal-Content {
+    position: relative;
+    height: 70%;
+    width: 100%;
+}
+
+.deleteModal-Content>div {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
 }

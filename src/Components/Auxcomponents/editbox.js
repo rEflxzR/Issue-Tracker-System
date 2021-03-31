@@ -15,7 +15,8 @@ class Editbox extends Component {
         this.state = {
             ...props.projectInfo,
             allDevs: [],
-            allTesters: []
+            allTesters: [],
+            oldTitle: props.projectInfo.title
         }
 
         this.editFormInputFieldChange = this.editFormInputFieldChange.bind(this)
@@ -76,10 +77,11 @@ class Editbox extends Component {
             this.setState({ ...this.props.projectInfo })
         }
         else {
-            const url = `http://${window.location.hostname}:8000/projectupdate`
-            await axios.post(url)
+            const url = `http://${window.location.hostname}:8000/updateprojectdetails`
+            const { title, oldTitle, description, developers, testers, status } = this.state
+            await axios.post(url, {title, oldTitle, description, status, developers, testers})
             .then((res) => {
-                console.log(res.data)
+                this.props.closeModal("closeModal")
             })
             .catch((err) => {
                 console.log(err)
@@ -121,6 +123,18 @@ class Editbox extends Component {
                                         {
                                             this.state.allDevs.map((dev) => {
                                                 return <MenuItem menuid="developers" value={dev}>{dev}</MenuItem>
+                                            })
+                                        }
+                                    </Select>
+                                </FormControl>
+                            </div>
+                            <div className="editFormInputField mx-auto">
+                                <FormControl className="fieldInnerDiv">
+                                    <InputLabel>Project Testers</InputLabel>
+                                    <Select multiple onChange={this.editFormSelectFieldChange} renderValue={() => this.state.testers.join(", ")} value={this.state.testers}>
+                                        {
+                                            this.state.allTesters.map((tester) => {
+                                                return <MenuItem menuid="testers" value={tester}>{tester}</MenuItem>
                                             })
                                         }
                                     </Select>
