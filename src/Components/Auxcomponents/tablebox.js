@@ -44,7 +44,7 @@ class Box extends Component {
                                     <tr className="tablehead row mx-0 my-2">
                                         {
                                             this.props.heading.map((head, index) => {
-                                                return <th key={index} className={`h2 text-left col col-${this.props.width[index]} mx-0 my-0 px-0`}><strong>{head.title}</strong></th>
+                                                return <th key={index} className={`h3 text-left col col-${this.props.width[index]} mx-0 my-0 px-0`}><strong>{head.title}</strong></th>
                                             })
                                         }
                                     </tr>

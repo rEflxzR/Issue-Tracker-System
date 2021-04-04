@@ -217,9 +217,9 @@ class ManageProjects extends Component {
                         }
                     </div>
                     <div className="detialsModal">
-                        <Modal display={this.state.displayModal} modalType={this.state.modalType} toggleDisplay={this.toggleModalDisplay} 
-                            projectDetails={this.state.projectDetails} detailDescription={true}
-                        />
+                        {this.state.displayModal && <Modal display={this.state.displayModal} modalType={this.state.modalType} toggleDisplay={this.toggleModalDisplay} 
+                            projectDetails={this.state.projectDetails} modalCategory="project"
+                        />}
                     </div>
                 </div>
             </div>

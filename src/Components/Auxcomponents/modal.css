@@ -23,7 +23,16 @@
 
 
 .modal-box {
-    height: 60vh;
+    height: 55vh;
+    width: 80vw;
+    display: flex;
+    justify-content: center;
+    animation: fadeIn linear 0.5s;
+    -webkit-animation: fadeIn linear 0.5s;
+}
+
+.modal-box-narrow {
+    height: 70vh;
     width: 80vw;
     display: flex;
     justify-content: center;

@@ -1,7 +1,7 @@
 .display {
     position: relative;
     height: 100%;
-    width: 75%;
+    width: 100%;
     opacity: 1;
     animation: fadeIn linear 1s;
     -webkit-animation: fadeIn linear 1s;

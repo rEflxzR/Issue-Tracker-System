@@ -13,7 +13,7 @@ class Displaybox extends Component {
                 <div className="display-footer">
                     <div className="details-table">
                         <div className="tabledata">
-                            <div className="flatrow row my-4">
+                            <div className="flatrow row my-3">
                                 <div className="col col-12">
                                     <h4 className="text-uppercase"><strong>description</strong></h4>
                                     <p className="h5 text-capitalize">{this.props.description}</p>
@@ -22,7 +22,7 @@ class Displaybox extends Component {
                             {
                                 this.props.moddedPropsKeys.map((key, index) => {
                                     if(index%2===0) {
-                                        return <div className="datarow row my-4">
+                                        return <div className="datarow row my-3">
                                             <div className="col col-4">
                                                 <h4 className="text-uppercase my-2"><strong>{this.props.moddedPropsKeys[index]}</strong></h4>
                                                 <p className="h5 text-capitalize my-2">{this.props.moddedProps[this.props.moddedPropsKeys[index]]}</p>

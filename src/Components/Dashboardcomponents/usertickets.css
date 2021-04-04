@@ -1,0 +1,50 @@
+.projectselectionform {
+    width: 85vw;
+    margin-bottom: 30px;
+}
+
+.formdiv {
+    height: 10vh;
+    width: 30%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-left: 2%;
+    padding-right: 2%;
+    background-color: white;
+    border: solid 1px black;
+}
+
+.projectselectmenu {
+    width: 100%;
+}
+
+.projecttickets {
+    width: 85vw;
+    height: 70vh;
+    display: flex;
+    justify-content: space-between;
+}
+
+.newticketform>form {
+    background-color: white;
+    height: 70vh;
+}
+
+.ticketformfield {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.ticketforminput {
+    width: 80%;
+}
+
+.ticketformbuttons {
+    width: 100%;
+    padding-left: 10%;
+    padding-right: 10%;
+    display: flex;
+    justify-content: space-between;
+}

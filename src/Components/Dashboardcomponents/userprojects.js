@@ -111,7 +111,7 @@ class UserProjects extends Component {
                     </div>
                     <div className="userprojectmodal">
                         {this.state.displayModal && <Modal display={this.state.displayModal} modalType={this.state.modalType} toggleDisplay={this.toggleModalDisplay} 
-                            projectDetails={this.state.detailedProjectsData} type="project"
+                            projectDetails={this.state.detailedProjectsData} modalCategory="project"
                         />}
                     </div>
                 </div>
