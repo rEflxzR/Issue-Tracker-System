@@ -33,7 +33,7 @@
 
 .modal-box-narrow {
     height: 70vh;
-    width: 80vw;
+    width: 85vw;
     display: flex;
     justify-content: center;
     animation: fadeIn linear 0.5s;

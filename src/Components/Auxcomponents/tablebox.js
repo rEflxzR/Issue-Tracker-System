@@ -32,8 +32,8 @@ class Box extends Component {
         return(
             <div className="box">
                 <div className="header">
-                    <div>
-                        <h1 className="text-light text-center"><strong>{this.props.title}</strong></h1>
+                    <div style={{ backgroundColor: `${this.props.headColor}` }}>
+                        <h1 className={`${this.props.headColor ? "text-black" : "text-light"} text-center`}><strong>{this.props.title}</strong></h1>
                     </div>
                 </div>
                 <div className="body">
@@ -44,7 +44,7 @@ class Box extends Component {
                                     <tr className="tablehead row mx-0 my-2">
                                         {
                                             this.props.heading.map((head, index) => {
-                                                return <th key={index} className={`h3 text-left col col-${this.props.width[index]} mx-0 my-0 px-0`}><strong>{head.title}</strong></th>
+                                                return <th key={index} className={`${this.props.smallFont ? "h4" : "h3"} text-left col col-${this.props.width[index]} mx-0 my-0 px-0`}><strong>{head.title}</strong></th>
                                             })
                                         }
                                     </tr>
@@ -55,7 +55,7 @@ class Box extends Component {
                                             return <tr className="tablerow row mx-0 px-1 my-2" key={index}>
                                                 {
                                                     Object.keys(entity).map((e, index) => {
-                                                        return <td key={index} className={`rowtext h5 pr-2 text-left ${index%2===0 ? 'text-capitalize' : null} col col-${this.props.width[index]} mx-0 px-0`}>{entity[e]}</td>
+                                                        return <td key={index} className={`rowtext ${this.props.smallFont ? "h6" : "h5"} pr-2 text-left ${index%2===0 ? 'text-capitalize' : null} col col-${this.props.width[index]} mx-0 px-0`}>{entity[e]}</td>
                                                     })
                                                 }
                                                 {

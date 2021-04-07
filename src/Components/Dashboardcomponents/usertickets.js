@@ -129,14 +129,15 @@ class UserTickets extends Component {
     }
 
     async openEditModal(param) {
-        const url = `http://${window.location.hostname}:8000/myprojectdetails`
+        const url = `http://${window.location.hostname}:8000/ticketdetails`
         const title = param
-        await axios.get(url, {headers: {title}}, {withCredentials: true})
+        const {currentUserProject} = this.state
+        await axios.get(url, {headers: {title, currentUserProject}}, {withCredentials: true})
         .then((res) => {
             this.setState({ ticketDetails: res.data, displayModal: true, modalType: "edit" })
         })
         .catch((err) => {
-            console.log("Request Sent to the Server Failed")
+            console.log(err)
         })
     }
 
@@ -239,7 +240,7 @@ class UserTickets extends Component {
                 </div>
                 <div className="userticketmodal">
                     {this.state.displayModal && <Modal display={this.state.displayModal} modalType={this.state.modalType} toggleDisplay={this.toggleModalDisplay} 
-                        projectDetails={this.state.ticketDetails} modalCategory="ticket" showTickets={true}
+                        entityInfo={this.state.ticketDetails} modalCategory="ticket" showTickets={true}
                     />}
                 </div>
             </div>
