@@ -96,10 +96,13 @@ class Editbox extends Component {
             }
             else {
                 const url = `http://${window.location.hostname}:8000/updateticketdetails`
-                const { title, oldTitle, description, ['developer assigned']: developer, comment, status, type, priority } = this.state
+                const { title, oldTitle, description, ['developer assigned']: developer, comment, status, priority } = this.state
+                const type = this.state.type.split(" ")[0]
                 await axios.post(url, { title, oldTitle, description, developer, comment, status, type, priority })
                 .then((res) => {
-                    this.props.closeModal("closeModal")
+                    this.setState({ comment: "" }, () => {
+                        this.props.updateEditModal(this.state.title)
+                    })
                 })
                 .catch((err) => {
                     console.log(err)

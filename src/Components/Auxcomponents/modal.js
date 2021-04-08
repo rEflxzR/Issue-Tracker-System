@@ -15,6 +15,7 @@ class Modal extends Component {
 
         this.closeModal = this.closeModal.bind(this)
         this.pageToggle = this.pageToggle.bind(this)
+        this.updateEditModal = this.updateEditModal.bind(this)
     }
 
     closeModal(evt) {
@@ -23,6 +24,12 @@ class Modal extends Component {
 
     pageToggle(param) {
         this.setState({ currentPageNumber: param })
+    }
+
+    updateEditModal(param) {
+        this.setState({ updateModal: true }, () => {
+            this.props.updateEditModal(param)
+        })
     }
 
     render() {
@@ -63,7 +70,7 @@ class Modal extends Component {
                             width={[9,3]} smallFont={true} headColor={"#2cd499"}
                         /></div>}
 
-                        {modalCategory==="ticket" && modalType==="edit" && <div className={`col col-${showTickets ? 4 : 8}`}><Editbox modalCategory="Ticket" entityInfo={{...entityInfo}} closeModal={this.closeModal} /></div>}
+                        {modalCategory==="ticket" && modalType==="edit" && <div className={`col col-${showTickets ? 4 : 8}`}><Editbox modalCategory="Ticket" entityInfo={{...entityInfo}} updateEditModal={this.updateEditModal} closeModal={this.closeModal} /></div>}
                         {modalType==="edit" && showTickets && <div className="col col-8"><Box title="Ticket Comments" body={entityInfo["comments"].slice(currentPageNumber*10-10, currentPageNumber*10)}
                             togglePage={this.pageToggle} totalEntries={entityInfo["comments"].length} page={currentPageNumber} 
                             heading={[{title:"COMMENT"}, {title:"DATE"}]}

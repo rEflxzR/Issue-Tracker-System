@@ -240,7 +240,7 @@ class UserTickets extends Component {
                 </div>
                 <div className="userticketmodal">
                     {this.state.displayModal && <Modal display={this.state.displayModal} modalType={this.state.modalType} toggleDisplay={this.toggleModalDisplay} 
-                        entityInfo={this.state.ticketDetails} modalCategory="ticket" showTickets={true}
+                        entityInfo={this.state.ticketDetails} modalCategory="ticket" showTickets={true} updateEditModal={this.openEditModal}
                     />}
                 </div>
             </div>
