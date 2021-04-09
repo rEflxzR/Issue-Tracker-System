@@ -98,7 +98,8 @@ class Editbox extends Component {
                 const url = `http://${window.location.hostname}:8000/updateticketdetails`
                 const { title, oldTitle, description, ['developer assigned']: developer, comment, status, priority } = this.state
                 const type = this.state.type.split(" ")[0]
-                await axios.post(url, { title, oldTitle, description, developer, comment, status, type, priority })
+                const prevDeveloper = this.props.entityInfo['developer assigned']
+                await axios.post(url, { title, oldTitle, description, developer, prevDeveloper, comment, status, type, priority })
                 .then((res) => {
                     this.setState({ comment: "" }, () => {
                         this.props.updateEditModal(this.state.title)
@@ -133,12 +134,12 @@ class Editbox extends Component {
                                 <FormControl className="fieldInnerDiv">
                                     <InputLabel>{modalCategory} Status</InputLabel>
                                     <Select onChange={this.editFormSelectFieldChange} renderValue={() => capitalize(this.state.status)} value={this.state.status}>
-                                        <MenuItem menuid="status" value="Open">Open</MenuItem>
+                                        <MenuItem disabled={this.state["developer assigned"]!=="---Not Assigned Yet---" ? true : false} menuid="status" value="Open">Open</MenuItem>
                                         {modalCategory==="Project" ? (<MenuItem menuid="status" value="Complete">Complete</MenuItem>):(null)}
                                         {modalCategory==="Project" ? (<MenuItem menuid="status" value="Abandoned">Abandoned</MenuItem>):(null)}
                                         {modalCategory==="Ticket" ? (<MenuItem menuid="status" value="In Progress">In Progress</MenuItem>):(null)}
+                                        {modalCategory==="Ticket" ? (<MenuItem menuid="status" value="Pending Approval">Pending Approval</MenuItem>):(null)}
                                         {modalCategory==="Ticket" ? (<MenuItem menuid="status" value="Resolved">Resolved</MenuItem>):(null)}
-                                        {modalCategory==="Ticket" ? (<MenuItem menuid="status" value="Additional Info Required">Additional Info Required</MenuItem>):(null)}
                                     </Select>
                                 </FormControl>
                             </div>

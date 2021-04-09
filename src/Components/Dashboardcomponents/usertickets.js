@@ -55,13 +55,12 @@ class UserTickets extends Component {
         })
     }
 
-    async shouldComponentUpdate(prevProps, prevState) {
+    async componentDidUpdate(prevProps, prevState) {
         if(prevState.updateTickets!==this.state.updateTickets) {
             const url = `http://${window.location.hostname}:8000/projecttickets`
             const title = this.state.currentUserProject
             await axios.get((url), {headers: {title}})
             .then((res) => {
-                console.log(res.data)
                 this.setState({ updateTickets: false, projectTickets: res.data })
             })
             .catch((err) => {
@@ -146,11 +145,14 @@ class UserTickets extends Component {
     }
 
     toggleModalDisplay(param) {
+        if(param==="update") {
+            this.setState({ updateTickets: true })
+        }
         if(param==="closeModal") {
-            this.setState({ displayModal: false, ticketDetails: [], modalType: "", updateDisplay: true })
+            this.setState({ displayModal: false, detailedProjectsData: [], modalType: "", updateDisplay: true })
         }
         if(param.currentTarget===param.target) {
-            this.setState({ displayModal: false, ticketDetails: [], modalType: "" })
+            this.setState({ displayModal: false, ticketDetails: [], modalType: "", updateTickets: true })
         }
     }
 

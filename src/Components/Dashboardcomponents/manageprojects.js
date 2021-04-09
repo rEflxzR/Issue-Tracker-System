@@ -125,6 +125,7 @@ class ManageProjects extends Component {
     }
 
     async openDetailsModal(val) {
+        console.log(val)
         const title = val
         const url = `http://${window.location.hostname}:8000/projectdetails`
         await axios.get(url, {headers: {title}})
@@ -218,7 +219,7 @@ class ManageProjects extends Component {
                     </div>
                     <div className="detialsModal">
                         {this.state.displayModal && <Modal display={this.state.displayModal} modalType={this.state.modalType} toggleDisplay={this.toggleModalDisplay} 
-                            projectDetails={this.state.projectDetails} modalCategory="project"
+                            entityInfo={this.state.projectDetails} modalCategory="project"
                         />}
                     </div>
                 </div>

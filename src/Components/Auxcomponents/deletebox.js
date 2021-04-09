@@ -11,7 +11,13 @@ class Deletebox extends Component {
     }
 
     async handleConfirmButtonClick() {
-        const url = `http://${window.location.hostname}:8000/deleteproject`
+        let url = ""
+        if(this.props.modalCategory==="project") {
+            url = `http://${window.location.hostname}:8000/deleteproject`
+        }
+        else {
+            url = url = `http://${window.location.hostname}:8000/deleteticket`
+        }
         const {title} = this.props
         await axios.delete(url, {data: {title}})
         .then((res) => {

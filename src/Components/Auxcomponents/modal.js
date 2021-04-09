@@ -18,6 +18,12 @@ class Modal extends Component {
         this.updateEditModal = this.updateEditModal.bind(this)
     }
 
+    componentWillUnmount() {
+        if(this.props.modalCategory==="ticket" && this.props.modalType==="edit") {
+            this.props.toggleDisplay("update")
+        }
+    }
+
     closeModal(evt) {
         this.props.toggleDisplay(evt)
     }
@@ -76,7 +82,8 @@ class Modal extends Component {
                             heading={[{title:"COMMENT"}, {title:"DATE"}]}
                             width={[9,3]} smallFont={true} headColor={"#ffba24"}
                         /></div>}
-                    </div>
+
+                        {modalCategory==="ticket" && modalType==="delete" && <Deletebox type={modalCategory} title={entityInfo.title} closeModal={this.closeModal} />}                    </div>
                 </div>
             </div>
         )
