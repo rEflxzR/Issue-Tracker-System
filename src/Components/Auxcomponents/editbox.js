@@ -139,7 +139,7 @@ class Editbox extends Component {
                                         {modalCategory==="Project" ? (<MenuItem menuid="status" value="Abandoned">Abandoned</MenuItem>):(null)}
                                         {modalCategory==="Ticket" ? (<MenuItem menuid="status" value="In Progress">In Progress</MenuItem>):(null)}
                                         {modalCategory==="Ticket" ? (<MenuItem menuid="status" value="Pending Approval">Pending Approval</MenuItem>):(null)}
-                                        {modalCategory==="Ticket" ? (<MenuItem menuid="status" value="Resolved">Resolved</MenuItem>):(null)}
+                                        {modalCategory==="Ticket" ? (<MenuItem disabled={window.localStorage.getItem("Role")==="developer" ? true : false} menuid="status" value="Resolved">Resolved</MenuItem>):(null)}
                                     </Select>
                                 </FormControl>
                             </div>
