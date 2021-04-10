@@ -104,7 +104,9 @@ class UserProjects extends Component {
                                 width={[3,3,2,1,1,2]} 
                                 detailButton={true} buttonContentId="title" detailsModal={this.openDetailsModal}
                                 editButton={true} editModal={this.openEditModal}
-                                deleteButton={true} deleteModal={this.openDeleteModal}
+                                disableEditButton={window.localStorage.getItem("Role")==="developer" || window.localStorage.getItem("Role")==="tester" ? true : false}
+                                deleteButton={true} deleteModal={this.openDeleteModal} 
+                                disableDeleteButton={window.localStorage.getItem("Role")==="developer" || window.localStorage.getItem("Role")==="tester" ? true : false}
                                 />
                             })
                         }

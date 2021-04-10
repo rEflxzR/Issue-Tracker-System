@@ -1,6 +1,18 @@
 import React, { Component } from 'react'
 import Button from '@material-ui/core/Button'
+import { styled } from '@material-ui/core/styles';
 import './tablebox.css'
+
+
+const DetailButton = styled(Button)({
+    background: 'linear-gradient(315deg, #3bb78f 0%, #0bab64 74%)'
+})
+const EditButton = styled(Button)({
+    background: 'linear-gradient(315deg, #d7722c 0%, #f53803 74%)'
+})
+const DeleteButton = styled(Button)({
+    background: 'linear-gradient(315deg, #b02e0c 0%, #b02e0c 74%)'
+})
 
 class Box extends Component {
     constructor(props) {
@@ -29,6 +41,7 @@ class Box extends Component {
     render() {
         const num = this.props.page
         const length = this.props.totalEntries
+        const { disableDetailButton, disableEditButton, disableDeleteButton } = this.props
         return(
             <div className="box">
                 <div className="header">
@@ -59,13 +72,13 @@ class Box extends Component {
                                                     })
                                                 }
                                                 {
-                                                    this.props.detailButton ? <td className={`col col-${this.props.width[Object.keys(entity).length]}`}><Button value={entity[this.props.buttonContentId]} type="detail" className="text-light" onClick={this.handleBoxButtonClick} size="small" variant="contained" style={{ backgroundColor: '#1fab00' }}><strong>DETAILS</strong></Button></td> : null
+                                                    this.props.detailButton ? <td className={`col col-${this.props.width[Object.keys(entity).length]}`}><DetailButton disabled={disableDetailButton ? true : false} value={entity[this.props.buttonContentId]} type="detail" className="text-light" onClick={this.handleBoxButtonClick} size="small" variant="contained"><strong>DETAILS</strong></DetailButton></td> : null
                                                 }
                                                 {
-                                                    this.props.editButton ? <td className={`col col-${this.props.width[Object.keys(entity).length+1]}`}><Button disabled={window.localStorage.getItem("Role")==="developer" || window.localStorage.getItem("Role")==="tester" ? true : false } value={entity[this.props.buttonContentId]} type="edit" className="text-light" onClick={this.handleBoxButtonClick} size="small" variant="contained" style={{ backgroundColor: '#d7722c' }}><strong>CHANGE</strong></Button></td> : null
+                                                    this.props.editButton ? <td className={`col col-${this.props.width[Object.keys(entity).length+1]}`}><EditButton disabled={disableEditButton ? true : false} value={entity[this.props.buttonContentId]} type="edit" className="text-light" onClick={this.handleBoxButtonClick} size="small" variant="contained"><strong>CHANGE</strong></EditButton></td> : null
                                                 }
                                                 {
-                                                    this.props.deleteButton ? <td className={`col col-${this.props.width[Object.keys(entity).length+2]}`}><Button disabled={window.localStorage.getItem("Role")==="developer" || window.localStorage.getItem("Role")==="tester" ? true : false } value={entity[this.props.buttonContentId]} type="delete" className="text-light" onClick={this.handleBoxButtonClick} size="small" variant="contained" style={{ backgroundColor: '#c41108' }}><strong>DELETE</strong></Button></td> : null
+                                                    this.props.deleteButton ? <td className={`col col-${this.props.width[Object.keys(entity).length+2]}`}><DeleteButton disabled={disableDeleteButton ? true : false} value={entity[this.props.buttonContentId]} type="delete" className="text-light" onClick={this.handleBoxButtonClick} size="small" variant="contained"><strong>DELETE</strong></DeleteButton></td> : null
                                                 }
                                                 </tr>
                                         })
