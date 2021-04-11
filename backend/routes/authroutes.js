@@ -10,7 +10,7 @@ const User = require('../models/users')
 
 
 
-// ------------------------------------GET ROUTES---------------------------------
+// ---------------------------------------------GET ROUTES---------------------------------------------
 
 router.get('/logout', (req, res) => {
     req.session = null
@@ -28,27 +28,25 @@ router.get('/cookie-session', (req, res) => {
 })
 
 
-// -------------------------------POST ROUTES----------------------------------
+// -----------------------------------------POST ROUTES------------------------------------------------
 
 router.post("/signin", async (req, res) => {
     const username = req.body.username
     const password = req.body.password
 
     const userData = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
-    .then((client) => {
-        return client.db().collection('users').findOne({username})
-        .then((res) => {
-            client.close()
-            return res
-        })
-        .catch((err) => {
-            client.close()
-            console.log("Could Not Find any User with that Username")
-            return null
-        })
+    .then(async (client) => {
+        const temp = await client.db().collection('users').findOne({username})
+        await client.close()
+        if(result) {
+            return result
+        }
+        else {
+            throw new Error("Could Not Find any User in the Collection")
+        }
     })
     .catch((err) => {
-        console.log("Cannot Connect to the Database")
+        console.log("Some Error Occurred")
         return null
     })
 
@@ -76,25 +74,20 @@ router.post("/signin", async (req, res) => {
     }
 })
 
-// ====================================================================================
+// =====================================================================================================
 
 router.post("/signup", 
 [
     check('email').trim().normalizeEmail({"gmail_remove_dots": false}).isEmail().withMessage("Email Address is Invalid").custom(async (email) => {
         const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
-        .then((client) => {
-            return client.db().collection('users').findOne({email})
-            .then((res) => {
-                client.close()
-                return res
-            })
-            .catch((err) => {
-                console.log(err)
-                client.close()
-            })
+        .then(async (client) => {
+            const temp = await client.db().collection('users').findOne({email})
+            await client.close()
+            return temp
         })
         .catch((err) => {
-            console.log("Error Occurred while Connecting to the Database")
+            console.log("Some Error Occurred")
+            console.log(err)
         })
 
         if(result) {
@@ -104,19 +97,14 @@ router.post("/signup",
     check('password').trim().isLength({min: 4}).withMessage("Password Must be Atleast 8 Characters Long"), 
     check('username').trim().isLength({min: 3}).withMessage("Username Must be Atleast 3 Characters Long").custom(async (username) => {
         const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
-        .then((client) => {
-            return client.db().collection('users').findOne({username})
-            .then((res) => {
-                client.close()
-                return res
-            })
-            .catch((err) => {
-                console.log(err)
-                client.close()
-            })
+        .then(async (client) => {
+            const temp = await client.db().collection('users').findOne({username})
+            await client.close()
+            return temp
         })
         .catch((err) => {
-            console.log("Error Occurred while Connecting to the Database")
+            console.log("Some Error Occurred")
+            console.log(err)
         })
 
         if(result) {
@@ -137,19 +125,14 @@ async (req, res) => {
         const newUser = new User({ username, email, password: hashedPassword, salt, role })
 
         const userid = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
-        .then((client) => {
-            return client.db().collection('users').insertOne(newUser)
-            .then((res) => {
-                client.close()
-                return res.insertedId
-            })
-            .catch((err) => {
-                client.close()
-                console.log("Error Inserting the User into the Database")
-            })
+        .then(async (client) => {
+            const temp = await client.db().collection('users').insertOne(newUser)
+            await client.close()
+            return temp.ops[0]["_id"]
         })
         .catch((err) => {
-            console.log("Could NOT Connect to Database Server")
+            console.log("Some Error Occurred")
+            console.log(err)
         })
 
         req.session.userId = userid
@@ -160,7 +143,7 @@ async (req, res) => {
     }
 })
 
-// ====================================================================================
+// ===================================================================================================
 
 router.post('/passwordreset', async (req, res) => {
     const { email } = req.body
@@ -182,8 +165,8 @@ router.post('/passwordreset', async (req, res) => {
         })
     })
     .catch((err) => {
-        console.log("Could Not Establish Connection to the Database")
-        return null
+        console.log("Some Error Occurred")
+        console.log(err)
     })
 
     if(result) {
@@ -219,11 +202,9 @@ router.post('/passwordreset', async (req, res) => {
     if(!result) {
         res.status(400).send("Fail")
     }
-
-
 })
 
-// ====================================================================================
+// ====================================================================================================
 
 router.post('/newpassword', async (req, res) => {
 
@@ -235,23 +216,14 @@ router.post('/newpassword', async (req, res) => {
     })
 
     const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
-    .then((client) => {
-        return client.db().collection('users').findOne({username})
-        .then(async (res) => {
-            if(res) {
-                await client.db().collection('users').updateOne({username}, {$set: {password: hashedPassword, salt}})
-            }
-            client.close()
-            return res ? true : false
-        })
-        .catch((err) => {
-            client.close()
-            return false
-        })
+    .then(async (client) => {
+        const temp = await client.db().collection('users').findOneAndUpdate({username}, {$set: {password: hashedPassword, salt}}, {returnOriginal: false})
+        await client.close()
+        return temp ? true : false
     })
     .catch((err) => {
-        console.log("Could Not Connect to the Database")
-        return null
+        consolg.log("Some Error Occurred")
+        console.log(err)
     })
 
     if(result) {
@@ -262,6 +234,8 @@ router.post('/newpassword', async (req, res) => {
     }
 
 })
+
+
 
 
 module.exports = router
