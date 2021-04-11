@@ -154,7 +154,15 @@ router.delete('/deleteproject', async(req, res) => {
     const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
     .then(async (client) => {
         const temp = await client.db().collection('projects').findOneAndDelete({ title })
+        const projectName = temp.value.title
+        const projectId = temp.value["_id"]
+        const ticketIds = temp.value.tickets
+        const allProjectUsers = [temp.value.manager, ...temp.value.developers, ...temp.value.testers]
+
+        await client.db().collection('tickets').deleteMany({ projectName })
+        await client.db().collection('sampleUsers').updateMany({username: {$in: allProjectUsers}}, {$pullAll: {tickets: ticketIds}, $pull: {projects: projectId}})
         await client.close()
+        
         if(temp) {
             return temp
         }

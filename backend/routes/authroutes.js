@@ -38,8 +38,8 @@ router.post("/signin", async (req, res) => {
     .then(async (client) => {
         const temp = await client.db().collection('users').findOne({username})
         await client.close()
-        if(result) {
-            return result
+        if(temp) {
+            return temp
         }
         else {
             throw new Error("Could Not Find any User in the Collection")
@@ -47,7 +47,7 @@ router.post("/signin", async (req, res) => {
     })
     .catch((err) => {
         console.log("Some Error Occurred")
-        return null
+        console.log(err)
     })
 
 

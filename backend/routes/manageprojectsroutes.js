@@ -127,10 +127,10 @@ router.get('/projectdetails', async (req, res) => {
 router.post('/newproject', async (req, res) => {
 	const { title, description, Manager, Developer, Tester, datetime } = req.body
 	const newProject = new Project({ title, description, dateOpened: datetime, manager: Manager, developers: Developer, testers: Tester })
-	const allProjectPersonals = []
-	allProjectPersonals.push(Manager)
-	Developer.forEach((dev) => {allProjectPersonals.push(dev)})
-	Tester.forEach((tester) => {allProjectPersonals.push(tester)})
+	const allProjectPersonals = [Manager, ...Developer, ...Tester]
+	// allProjectPersonals.push(Manager)
+	// Developer.forEach((dev) => {allProjectPersonals.push(dev)})
+	// Tester.forEach((tester) => {allProjectPersonals.push(tester)})
 
 	const project = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
 	.then(async (client) => {
