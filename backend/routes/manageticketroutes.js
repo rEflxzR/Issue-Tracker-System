@@ -2,14 +2,14 @@ const express = require("express")
 const mongodb = require("mongodb").MongoClient
 const router = express.Router()
 const { ObjectID } = require("mongodb")
-// const Ticket = require('../models/ticket')
+const Ticket = require('../models/ticket')
 
 
 router.get('/projecttickets', async (req, res) => {
 	const {title} = req.headers
 	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
-    .then((client) => {
-        return client.db().collection('projects').aggregate([
+    .then(async (client) => {
+        const temp = await client.db().collection('projects').aggregate([
             {$match: {title}},
             {$lookup: {
                 from: 'tickets',
@@ -19,10 +19,18 @@ router.get('/projecttickets', async (req, res) => {
             }},
             {$project: {"_id": 0}}
         ]).toArray()
+
+		await client.close()
+		if(temp.length==0) {
+			throw new Error("Could Not Find any Tickets for the Given Project Title")
+		}
+		else {
+			return temp
+		}
     })
     .catch((err) => {
+		console.log("Some Error Occurred")
         console.log(err)
-		console.log("Could Not Connect to the Database Server")
     })
 
 
@@ -47,35 +55,37 @@ router.post('/newticket', async (req, res) => {
 	const newTicket = new Ticket({ title, description, type, priority, dateOpened: datetime, tester, projectName: currentUserProject })
 
 	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', {useUnifiedTopology: true})
-	.then((client) => {
-		return client.db().collection('tickets').findOneAndUpdate({title}, {$set: newTicket}, {upsert: true, returnOriginal: false})
-		.then(async (res) => {
-			const ticketId = res.lastErrorObject.upserted
+	.then(async (client) => {
+		const existingTicket = await client.db().collection('tickets').findOne({ title, projectName: currentUserProject })
+
+		if(existingTicket) {
+			throw new Error("Ticket with Same Title Already Exists")
+		}
+		else {
+			const temp = await client.db().collection('tickets').insertOne(newTicket)
+			const ticketId = temp.ops[0]["_id"]
 			await client.db().collection('sampleUsers').findOneAndUpdate({username: tester}, {$addToSet: {tickets: ticketId}})
 			await client.db().collection('projects').findOneAndUpdate({title: currentUserProject}, {$addToSet: {tickets: ticketId}})
 			await client.close()
-			return res
-		})
-		.catch((err) => {
-			client.close()
-			console.log("Error In Upsert Function")
-		})
+			return temp.ops[0]
+		}
 	})
 	.catch((err) => {
+		console.log("Some Error Occurred")
 		console.log(err)
-		console.log("Could Not Connect to the Database")
 	})
 
+
 	if(result) {
-		const {title, status, priority} = result.value
+		const {title, status, priority} = result
 		const finalResult = {title, status, priority}
 		res.status(200).json(finalResult)
 	}
 	else {
-		console.log("Failed to make a Ticket")
 		res.status(406).send("Fail")
 	}
 })
+
 
 
 router.get('/ticketdetails', async (req, res) => {
@@ -84,11 +94,16 @@ router.get('/ticketdetails', async (req, res) => {
 	.then(async (client) => {
 		const temp = await client.db().collection('tickets').findOne({ projectName: currentuserproject, title }, { projection: { _id: 0 }})
 		await client.close()
-		return temp
+		if(temp) {
+			return temp
+		}
+		else {
+			throw new Error("Cannot Find any Ticket in the Collection with the given Title")
+		}
 	})
 	.catch((err) => {
+		console.log("Some Error Occurred")
 		console.log(err)
-		console.log("Could Not Connect to the Database Server")
 	})
 
 	if(result) {
@@ -113,7 +128,7 @@ router.get('/ticketdetails', async (req, res) => {
 
 router.post('/updateticketdetails', async(req, res) => {
 
-	const { oldTitle, title, description, developer, prevDeveloper, status, comment, type, priority } = req.body
+	const { oldTitle, title, description, developer, prevDeveloper, status, comment, type, priority, projectName } = req.body
 	const currentdate = new Date()
 	const datetime = currentdate.getDate() + "/" + (currentdate.getMonth()+1)  + "/" 
     + currentdate.getFullYear() + ", " + currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true })
@@ -121,16 +136,19 @@ router.post('/updateticketdetails', async(req, res) => {
 
 	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', {useUnifiedTopology: true})
 	.then(async (client) => {
-		if(structuredComment) {
-			const temp = await client.db().collection('tickets').findOneAndUpdate({ title: oldTitle }, {$set: { title, description, developer, status, type, priority}, $push: {comments: structuredComment} }, {returnOriginal: false})
-			const ticketId = ObjectID(temp.value["_id"])
-			await client.db().collection('sampleUsers').findOneAndUpdate({ username: prevDeveloper }, {$pull: {tickets: ticketId }}, {returnOriginal: false})
-			await client.db().collection('sampleUsers').findOneAndUpdate({ username: developer }, {$addToSet: {tickets: ticketId }}, {returnOriginal: false})
+		const existingTicket = await client.db().collection('tickets').findOne({ projectName, title })
+		if(existingTicket && oldTitle!=title) {
 			await client.close()
-			return temp
+			throw new Error("Ticket with Same Title Already Exists")
 		}
 		else {
-			const temp = await client.db().collection('tickets').findOneAndUpdate({ title: oldTitle }, {$set: { title, description, developer, status, type, priority} }, {returnOriginal: false})
+			let temp = null
+			if(structuredComment) {
+				temp = await client.db().collection('tickets').findOneAndUpdate({ title: oldTitle }, {$set: { title, description, developer, status, type, priority}, $push: {comments: structuredComment} }, {returnOriginal: false})
+			}
+			else {
+				temp = await client.db().collection('tickets').findOneAndUpdate({ title: oldTitle }, {$set: { title, description, developer, status, type, priority} }, {returnOriginal: false})
+			}
 			const ticketId = ObjectID(temp.value["_id"])
 			await client.db().collection('sampleUsers').findOneAndUpdate({ username: prevDeveloper }, {$pull: {tickets: ticketId }}, {returnOriginal: false})
 			await client.db().collection('sampleUsers').findOneAndUpdate({ username: developer }, {$addToSet: {tickets: ticketId }}, {returnOriginal: false})
@@ -139,9 +157,10 @@ router.post('/updateticketdetails', async(req, res) => {
 		}
 	})
 	.catch((err) => {
+		console.log("Some Error Occurred")
 		console.log(err)
-		console.log("Could Not Estabilish a Connection to the Database")
 	})
+
 
 	if(result) {
 		res.status(200).send(result)
@@ -167,9 +186,10 @@ router.delete('/deleteticket', async(req, res) => {
 		return temp
 	})
 	.catch((err) => {
+		console.log("Some Error Occurred")
 		console.log(err)
-		console.log("Could Not Connect to the Database Server")
 	})
+
 
 	if(result) {
 		res.status(200).send(result)

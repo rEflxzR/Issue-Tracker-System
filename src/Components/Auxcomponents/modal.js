@@ -40,7 +40,7 @@ class Modal extends Component {
 
     render() {
         const { currentPageNumber } = this.state
-        const { modalType, modalCategory, showTickets, entityInfo } = this.props
+        const { modalType, modalCategory, showTickets, entityInfo, projectName } = this.props
 
         const moddedProps = {}
         const moddedPropsKeys = []
@@ -60,6 +60,7 @@ class Modal extends Component {
             moddedPropsKeys.sort((a, b) => { return a.localeCompare(b) })
         }
 
+
         return(
             <div className={this.props.display ? "modal-display" : "modal-hide"}>
                 <div onClick={this.closeModal} className="main-modal row">
@@ -76,7 +77,7 @@ class Modal extends Component {
                             width={[9,3]} smallFont={true} headColor={"#2cd499"}
                         /></div>}
 
-                        {modalCategory==="ticket" && modalType==="edit" && <div className={`col col-${showTickets ? 4 : 8}`}><Editbox modalCategory="Ticket" entityInfo={{...entityInfo}} updateEditModal={this.updateEditModal} closeModal={this.closeModal} /></div>}
+                        {modalCategory==="ticket" && modalType==="edit" && <div className={`col col-${showTickets ? 4 : 8}`}><Editbox modalCategory="Ticket" entityInfo={{...entityInfo}} updateEditModal={this.updateEditModal} projectName={projectName} closeModal={this.closeModal} /></div>}
                         {modalType==="edit" && showTickets && <div className="col col-8"><Box title="Ticket Comments" body={entityInfo["comments"].slice(currentPageNumber*10-10, currentPageNumber*10)}
                             togglePage={this.pageToggle} totalEntries={entityInfo["comments"].length} page={currentPageNumber} 
                             heading={[{title:"COMMENT"}, {title:"DATE"}]}

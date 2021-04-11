@@ -13,14 +13,13 @@ router.get('/userandprojectdetails', async (req, res) => {
 	.then(async (client) => {
 		const userDetails = await client.db().collection('users').find({role: {$ne: "admin"}}).toArray()
 		const projectDetails = await client.db().collection('projects').find({}).toArray()
+		await client.close()
 		if(userDetails.length==0 && projectDetails.length==0) {
-			await client.close()
 			throw new Error("Error Finding all Users or Projects in the Database")
 		}
 		else {
 			result.push(userDetails)
 			result.push(projectDetails)
-			await client.close()
 		}
 	})
 	.catch((err) => {
@@ -63,12 +62,12 @@ router.get('/allprojects', async (req, res) => {
 	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker')
 	.then(async (client) => {
 		const temp = await client.db().collection('projects').find({}).toArray()
+		await client.close()
+
 		if(temp.length==0) {
-			await client.close()
 			throw new Error("Error Finding Projects in the Database")
 		}
 		else {
-			await client.close()
 			return temp
 		}
 	})
@@ -95,12 +94,11 @@ router.get('/projectdetails', async (req, res) => {
 	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
 	.then(async (client) => {
 		const temp = await client.db().collection('projects').findOne({ title }, { projection: { _id: 0 } })
+		await client.close()
 		if(temp) {
-			await client.close()
 			return temp
 		}
 		else {
-			await client.close()
 			throw new Error("Cannot Find A Project with the Given Title")
 		}
 	})
@@ -142,11 +140,11 @@ router.post('/newproject', async (req, res) => {
 			throw new Error("Project With Same Title Already Exists")
 		}
 		else {
-			const temp = await client.db().collection('projects').findOneAndUpdate({title}, {$set: newProject}, {upsert: true, returnOriginal: false})
-			const projectId = temp.value["_id"]
+			const temp = await client.db().collection('projects').insertOne(newProject)
+			const projectId = temp.ops[0]["_id"]
 			await client.db().collection('sampleUsers').updateMany({ username: { $in: allProjectPersonals } }, { $addToSet: { projects: projectId } })
 			await client.close()
-			return temp
+			return temp.ops[0]
 		}
 	})
 	.catch((err) => {
@@ -155,7 +153,7 @@ router.post('/newproject', async (req, res) => {
 	})
 
 	if(project) {
-		const projectInfo = {"title": project.value.title, "manager": project.value.manager}
+		const projectInfo = {"title": project.title, "manager": project.manager}
 		res.status(200).json({msg: "Success", content: projectInfo})
 	}
 	else {

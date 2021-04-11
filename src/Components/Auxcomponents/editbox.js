@@ -99,7 +99,8 @@ class Editbox extends Component {
                 const { title, oldTitle, description, ['developer assigned']: developer, comment, status, priority } = this.state
                 const type = this.state.type.split(" ")[0]
                 const prevDeveloper = this.props.entityInfo['developer assigned']
-                await axios.post(url, { title, oldTitle, description, developer, prevDeveloper, comment, status, type, priority })
+                const { projectName } = this.props
+                await axios.post(url, { title, oldTitle, description, developer, prevDeveloper, comment, status, type, priority, projectName })
                 .then((res) => {
                     this.setState({ comment: "" }, () => {
                         this.props.updateEditModal(this.state.title)
