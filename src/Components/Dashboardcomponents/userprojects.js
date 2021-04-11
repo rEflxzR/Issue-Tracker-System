@@ -24,7 +24,7 @@ class UserProjects extends Component {
     }
 
     async componentDidMount() {
-        const url = `http://${window.location.hostname}:8000/userprojects`
+        const url = `http://${window.location.hostname}:3000/userprojects`
         const username = window.localStorage.getItem("Name")
         await axios.get(url, {headers: {username}}, {withCredentials: true})
         .then((res) => {
@@ -37,7 +37,7 @@ class UserProjects extends Component {
 
     async componentDidUpdate(prevProps, prevState) {
         if(prevState.updateDisplay!==this.state.updateDisplay) {
-            const url = `http://${window.location.hostname}:8000/userprojects`
+            const url = `http://${window.location.hostname}:3000/userprojects`
             const username = window.localStorage.getItem("Name")
             await axios.get(url, {headers: {username}}, {withCredentials: true})
             .then((res) => {
@@ -50,7 +50,7 @@ class UserProjects extends Component {
     }
 
     async openDetailsModal(param) {
-        const url = `http://${window.location.hostname}:8000/myprojectdetails`
+        const url = `http://${window.location.hostname}:3000/myprojectdetails`
         const title = param
         await axios.get(url, {headers: {title}}, {withCredentials: true})
         .then((res) => {
@@ -62,7 +62,7 @@ class UserProjects extends Component {
     }
 
     async openEditModal(param) {
-        const url = `http://${window.location.hostname}:8000/myprojectdetails`
+        const url = `http://${window.location.hostname}:3000/myprojectdetails`
         const title = param
         await axios.get(url, {headers: {title}}, {withCredentials: true})
         .then((res) => {

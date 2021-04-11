@@ -6,9 +6,18 @@ import TextField from '@material-ui/core/TextField'
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select'
 import Button from '@material-ui/core/Button'
+import { styled } from '@material-ui/core/styles';
 import Box from '../Auxcomponents/tablebox'
 import Modal from '../Auxcomponents/modal'
 import './manageprojects.css'
+
+
+const ClearButton = styled(Button)({
+    background: 'linear-gradient(to right, #f85032, #e73827)'
+})
+const SubmitButton = styled(Button)({
+    background: 'linear-gradient(to right, #0575e6, #021b79)'
+})
 
 class ManageProjects extends Component {
     constructor(props) {
@@ -43,7 +52,7 @@ class ManageProjects extends Component {
     }
 
     async componentDidMount() {
-        const url = `http://${window.location.hostname}:8000/userandprojectdetails`
+        const url = `http://${window.location.hostname}:3000/userandprojectdetails`
         await axios.get(url)
         .then((res) => {
             const { managers, developers, testers, projects } = res.data.content
@@ -57,7 +66,7 @@ class ManageProjects extends Component {
 
     async componentDidUpdate(prevProps, prevState) {
         if(prevState.update!==this.state.update) {
-            const url = `http://${window.location.hostname}:8000/allprojects`
+            const url = `http://${window.location.hostname}:3000/allprojects`
             await axios.get(url).then((res) => {
                 this.setState({ projectData: res.data.content.finalresult, update: false })
             })
@@ -103,7 +112,7 @@ class ManageProjects extends Component {
         evt.preventDefault()
         const form = evt.currentTarget.form
         if(form.reportValidity()) {
-            const url = `http://${window.location.hostname}:8000/newproject`
+            const url = `http://${window.location.hostname}:3000/newproject`
             const { title, description, Developer, Manager, Tester } = this.state
             const currentdate = new Date() 
             const datetime = currentdate.getDate() + "/" + (currentdate.getMonth()+1)  + "/" 
@@ -127,7 +136,7 @@ class ManageProjects extends Component {
     async openDetailsModal(val) {
         console.log(val)
         const title = val
-        const url = `http://${window.location.hostname}:8000/projectdetails`
+        const url = `http://${window.location.hostname}:3000/projectdetails`
         await axios.get(url, {headers: {title}})
         .then((res) => {
             this.setState({ projectDetails: res.data, displayModal: true, modalType: "detail" })
@@ -197,10 +206,10 @@ class ManageProjects extends Component {
                             </div>
                             <div className="projectformbuttondiv my-5">
                                 <div className="projectformbuttons">
-                                    <Button disabled={window.localStorage.getItem("Role")==="admin" || window.localStorage.getItem("Role")==="projectmanager" ? false : true} 
-                                    onClick={this.handleClearButtonClick} size="large" variant="contained" color="secondary"><strong>CLEAR</strong></Button>
-                                    <Button disabled={window.localStorage.getItem("Role")==="admin" || window.localStorage.getItem("Role")==="projectmanager" ? false : true} 
-                                    onClick={this.handleSubmitButtonClick} size="large" variant="contained" color="primary"><strong>SUBMIT</strong></Button>
+                                    <ClearButton className="text-light" disabled={window.localStorage.getItem("Role")==="admin" || window.localStorage.getItem("Role")==="projectmanager" ? false : true} 
+                                    onClick={this.handleClearButtonClick} size="large" variant="contained"><strong>CLEAR</strong></ClearButton>
+                                    <SubmitButton className="text-light" disabled={window.localStorage.getItem("Role")==="admin" || window.localStorage.getItem("Role")==="projectmanager" ? false : true} 
+                                    onClick={this.handleSubmitButtonClick} size="large" variant="contained"><strong>SUBMIT</strong></SubmitButton>
                                 </div>
                             </div>
                         </form>

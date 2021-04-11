@@ -8,6 +8,7 @@ const authroutes = require("./routes/authroutes.js")
 const managerolesroutes = require("./routes/managerolesroutes.js")
 const manageprojectsroutes = require("./routes/manageprojectsroutes.js")
 const userprojectsroutes = require("./routes/userprojectsroutes.js")
+const ticketroutes = require("./routes/manageticketroutes")
 const port = process.env.PORT || 3000
 
 app.use(cors())
@@ -21,6 +22,7 @@ app.use(authroutes)
 app.use(managerolesroutes)
 app.use(manageprojectsroutes)
 app.use(userprojectsroutes)
+app.use(ticketroutes)
 
 app.get('/*', function (req, res) {
 	res.sendFile(path.join(__dirname, '../build', 'index.html'))

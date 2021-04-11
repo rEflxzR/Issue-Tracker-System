@@ -5,11 +5,21 @@ import InputLabel from '@material-ui/core/InputLabel';
 import TextField from '@material-ui/core/TextField'
 import MenuItem from '@material-ui/core/MenuItem';
 import { capitalize } from '@material-ui/core';
+import { styled } from '@material-ui/core/styles';
 import Select from '@material-ui/core/Select'
 import Button from '@material-ui/core/Button'
 import Box from '../Auxcomponents/tablebox'
 import Modal from '../Auxcomponents/modal'
 import './usertickets.css'
+
+
+const ClearButton = styled(Button)({
+    background: 'linear-gradient(to right, #f85032, #e73827)'
+})
+const SubmitButton = styled(Button)({
+    background: 'linear-gradient(to right, #0575e6, #021b79)'
+})
+
 
 class UserTickets extends Component {
     constructor(props) {
@@ -44,7 +54,7 @@ class UserTickets extends Component {
     }
 
     async componentDidMount() {
-        const url = `http://${window.location.hostname}:8000/userprojects`
+        const url = `http://${window.location.hostname}:3000/userprojects`
         const username = window.localStorage.getItem('Name')
         axios.get((url), {headers: {username}})
         .then((res) => {
@@ -57,7 +67,7 @@ class UserTickets extends Component {
 
     async componentDidUpdate(prevProps, prevState) {
         if(prevState.updateTickets!==this.state.updateTickets) {
-            const url = `http://${window.location.hostname}:8000/projecttickets`
+            const url = `http://${window.location.hostname}:3000/projecttickets`
             const title = this.state.currentUserProject
             await axios.get((url), {headers: {title}})
             .then((res) => {
@@ -70,7 +80,7 @@ class UserTickets extends Component {
     }
 
     async handleProjectSelectMenuChange(evt) {
-        const url = `http://${window.location.hostname}:8000/projecttickets`
+        const url = `http://${window.location.hostname}:3000/projecttickets`
         const title = evt.currentTarget.getAttribute("data-value")
         await axios.get((url), {headers: {title}})
         .then((res) => {
@@ -96,7 +106,7 @@ class UserTickets extends Component {
     }
 
     async handleSubmitClick() {
-        const url = `http://${window.location.hostname}:8000/newticket`
+        const url = `http://${window.location.hostname}:3000/newticket`
         const {title, description, priority, type, currentUserProject} = this.state
         const tester = window.localStorage.getItem("Name")
         const currentdate = new Date() 
@@ -114,7 +124,7 @@ class UserTickets extends Component {
 
 
     async openDetailsModal(param) {
-        const url = `http://${window.location.hostname}:8000/ticketdetails`
+        const url = `http://${window.location.hostname}:3000/ticketdetails`
         const title = param
         const {currentUserProject} = this.state
 
@@ -128,7 +138,7 @@ class UserTickets extends Component {
     }
 
     async openEditModal(param) {
-        const url = `http://${window.location.hostname}:8000/ticketdetails`
+        const url = `http://${window.location.hostname}:3000/ticketdetails`
         const title = param
         const {currentUserProject} = this.state
         await axios.get(url, {headers: {title, currentUserProject}}, {withCredentials: true})
@@ -215,8 +225,8 @@ class UserTickets extends Component {
                                         </FormControl>
                                     </div>
                                     <div className="ticketformbuttons my-5">
-                                        <Button onClick={this.handleClearClick} size="large" variant="contained" color="secondary"><strong>Reset Details</strong></Button>
-                                        <Button onClick={this.handleSubmitClick} size="large" variant="contained" color="primary"><strong>Submit Ticket</strong></Button>
+                                        <SubmitButton className="text-light" onClick={this.handleClearClick} size="large" variant="contained"><strong>Reset Details</strong></SubmitButton>
+                                        <ClearButton className="text-light" onClick={this.handleSubmitClick} size="large" variant="contained"><strong>Submit Ticket</strong></ClearButton>
                                     </div>
                                 </form>
                             </div>

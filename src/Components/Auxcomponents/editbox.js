@@ -26,7 +26,7 @@ class Editbox extends Component {
     }
 
     async componentDidMount() {
-        const url = `http://${window.location.hostname}:8000/devsandtesters`
+        const url = `http://${window.location.hostname}:3000/devsandtesters`
         await axios.get(url)
         .then((res) => {
             const allDevs = []
@@ -84,7 +84,7 @@ class Editbox extends Component {
         }
         else {
             if(this.props.modalCategory==="Project") {
-                const url = `http://${window.location.hostname}:8000/updateprojectdetails`
+                const url = `http://${window.location.hostname}:3000/updateprojectdetails`
                 const { title, oldTitle, description, developers, testers, status } = this.state
                 await axios.post(url, {title, oldTitle, description, status, developers, testers})
                 .then((res) => {
@@ -95,7 +95,7 @@ class Editbox extends Component {
                 })
             }
             else {
-                const url = `http://${window.location.hostname}:8000/updateticketdetails`
+                const url = `http://${window.location.hostname}:3000/updateticketdetails`
                 const { title, oldTitle, description, ['developer assigned']: developer, comment, status, priority } = this.state
                 const type = this.state.type.split(" ")[0]
                 const prevDeveloper = this.props.entityInfo['developer assigned']

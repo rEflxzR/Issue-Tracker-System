@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
+import axios from 'axios'
 import Button from '@material-ui/core/Button'
 import './deletebox.css'
-import axios from 'axios'
 
 class Deletebox extends Component {
     constructor(props) {
@@ -12,11 +12,11 @@ class Deletebox extends Component {
 
     async handleConfirmButtonClick() {
         let url = ""
-        if(this.props.modalCategory==="project") {
-            url = `http://${window.location.hostname}:8000/deleteproject`
+        if(this.props.type==="project") {
+            url = `http://${window.location.hostname}:3000/deleteproject`
         }
         else {
-            url = url = `http://${window.location.hostname}:8000/deleteticket`
+            url = `http://${window.location.hostname}:3000/deleteticket`
         }
         const {title} = this.props
         await axios.delete(url, {data: {title}})

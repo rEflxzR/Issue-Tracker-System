@@ -7,7 +7,7 @@ const router = express.Router()
 
 router.get('/users', async (req, res) => {
 	const users = []
-	await mongodb.connect('mongodb://localhost:27017/bugtracker')
+	await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
 	.then((client) => {
 		return client.db().collection('users').find({}).toArray().then((res) => {
 			client.close()
@@ -38,7 +38,7 @@ router.get('/users', async (req, res) => {
 
 router.post('/updateusers', async (req, res) => {
 	const { personName, personRole } = req.body
-	await mongodb.connect('mongodb://localhost:27017/bugtracker')
+	await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
 	.then((client) => {
 		personName.forEach((name) => {
 			client.db().collection('users').findOneAndUpdate({ username: name }, { $set: { role: personRole } })

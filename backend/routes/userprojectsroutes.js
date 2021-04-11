@@ -24,12 +24,13 @@ router.get('/userprojects', async (req, res) => {
         console.log("Could Not Connect to the Database Server")
         console.log(err)
     })
+    
 
     if(result) {
         const finalResult = []
         for(let project of result[0].userProjectsData) {
-            delete project["_id"]
-            finalResult.push(project)
+            const { title, manager, status } = project
+            finalResult.push({title, manager, status})
         }
 
         res.status(200).send(finalResult)
@@ -112,6 +113,14 @@ router.post('/updateprojectdetails', async (req, res) => {
         }
         else {
             const temp = await client.db().collection('projects').findOneAndUpdate({ title: oldTitle }, {$set: {title, description, status, developers, testers}}, {returnOriginal: false})
+            const projectName = temp.value.title
+            const allTickets = temp.value.tickets
+            const ticketIds = []
+            for(let ticket of allTickets) {
+                ticketIds.push(ObjectId(ticket))
+            }
+            await client.db().collection('tickets').updateMany({ "_id": { $in: [...ticketIds] } }, {$set: {projectName}})
+
             client.close()
             return temp
         }
@@ -119,6 +128,7 @@ router.post('/updateprojectdetails', async (req, res) => {
     .catch((err) => {
         console.log(err)
     })
+
 
     if(result) {
         res.status(200).json({ title, description, status, developers, testers })
@@ -136,7 +146,7 @@ router.delete('/deleteproject', async(req, res) => {
     const {title} = req.body
     const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
     .then(async (client) => {
-        const temp = await client.db().collection('projects').findOne({ title })
+        const temp = await client.db().collection('projects').findOneAndDelete({ title })
         client.close()
         return temp
     })

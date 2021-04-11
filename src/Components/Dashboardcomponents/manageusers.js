@@ -5,8 +5,18 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select'
 import Button from '@material-ui/core/Button'
+import { styled } from '@material-ui/core/styles'
 import Box from '../Auxcomponents/tablebox'
 import './manageusers.css'
+
+
+const ClearButton = styled(Button)({
+    background: 'linear-gradient(to right, #f85032, #e73827)'
+})
+const SubmitButton = styled(Button)({
+    background: 'linear-gradient(to right, #0575e6, #021b79)'
+})
+
 
 class ManageUsers extends Component {
     constructor(props) {
@@ -124,8 +134,8 @@ class ManageUsers extends Component {
                                 </div>
 
                                 <div className="formbuttons my-4">
-                                    <Button disabled={window.localStorage.getItem("Role")==="admin" ? false : true} onClick={this.handleClearClick} size="large" variant="contained" color="secondary"><strong>Clear Choices</strong></Button>
-                                    <Button disabled={window.localStorage.getItem("Role")==="admin" ? false : true} onClick={this.handleSubmitClick} size="large" variant="contained" color="primary"><strong>Submit</strong></Button>
+                                    <ClearButton className="text-light" disabled={window.localStorage.getItem("Role")==="admin" ? false : true} onClick={this.handleClearClick} size="large" variant="contained"><strong>Clear Choices</strong></ClearButton>
+                                    <SubmitButton className="text-light" disabled={window.localStorage.getItem("Role")==="admin" ? false : true} onClick={this.handleSubmitClick} size="large" variant="contained"><strong>Submit</strong></SubmitButton>
                                 </div>
                             </form>
                         </div>

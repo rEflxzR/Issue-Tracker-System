@@ -9,23 +9,22 @@ const Project = require('../models/project')
 
 router.get('/userandprojectdetails', async (req, res) => {
 	const result = []
-	await mongodb.connect('mongodb://localhost:27017/bugtracker')
+	await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
 	.then(async (client) => {
 		const userDetails = await client.db().collection('users').find({role: {$ne: "admin"}}).toArray()
-		.then(res => {return res})
-		.catch((err) => {console.log("Error Finding Users in Database")})
-		result.push(userDetails)
-		
 		const projectDetails = await client.db().collection('projects').find({}).toArray()
-		.then((res) => {
-			client.close()
-			return res
-		})
-		.catch((err) => {console.log("Cannot Find Projects in Database")})
-		result.push(projectDetails)
+		if(userDetails.length==0 && projectDetails.length==0) {
+			await client.close()
+			throw new Error("Error Finding all Users or Projects in the Database")
+		}
+		else {
+			result.push(userDetails)
+			result.push(projectDetails)
+			await client.close()
+		}
 	})
 	.catch((err) => {
-		console.log("Could Not Connect to the Database")
+		console.log("Some Error Occurred")
 		console.log(err)
 	})
 
@@ -47,41 +46,78 @@ router.get('/userandprojectdetails', async (req, res) => {
 	})
 
 	result[1].forEach((project) => {
-		const { title, dateOpened, manager, status } = project
-		projects.push({title, manager, status, dateOpened})
+		const { title, manager, status } = project
+		projects.push({title, manager, status})
 	})
 
 	if(result.length) {
 		res.status(200).json({msg: "Success", content: {managers, developers, testers, projects}})	
 	}
 	else {
-		res.status(204).send("No Such Users and Projects Found")
+		res.status(204).send("No Such Users Found")
 	}
 })
 
 
 router.get('/allprojects', async (req, res) => {
 	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker')
-	.then((client) => {
-		return client.db().collection('projects').find({}).toArray()
-		.then((res) => {
-			client.close()
-			return res
-		})
-		.catch((err) => {console.log("Error Finding Projects from the Database"); client.close()})
+	.then(async (client) => {
+		const temp = await client.db().collection('projects').find({}).toArray()
+		if(temp.length==0) {
+			await client.close()
+			throw new Error("Error Finding Projects in the Database")
+		}
+		else {
+			await client.close()
+			return temp
+		}
 	})
-	.catch((err) => {console.log("Could Not Connect to the Database")})
+	.catch((err) => {
+		console.log("Some Error Occurred")
+		console.log(err)
+	})
 
 	if(result.length) {
 		const finalresult = []
 		result.forEach((project) => {
-			const { title, dateOpened, manager, status } = project
-			finalresult.push({ title, manager, status, dateOpened })
-		})
+			const { title, manager, status } = project
+			finalresult.push({ title, manager, status })		})
 		res.status(200).json({ msg: "Success", content: {finalresult} })
 	}
 	else {
 		res.status(400).send("Fail")
+	}
+})
+
+
+router.get('/projectdetails', async (req, res) => {
+	const {title} = req.headers
+	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
+	.then(async (client) => {
+		const temp = await client.db().collection('projects').findOne({ title }, { projection: { _id: 0 } })
+		if(temp) {
+			await client.close()
+			return temp
+		}
+		else {
+			await client.close()
+			throw new Error("Cannot Find A Project with the Given Title")
+		}
+	})
+	.catch((err) => {
+		console.log("Some Error Occurred")
+		console.log(err)
+	})
+
+	if(result) {
+		result["created"] = result["dateOpened"]
+		delete result["dateOpened"]
+		result["tickets"] = result["tickets"].length
+
+		res.status(200).send(result)
+	}
+	else {
+		res.status(406).send("Fail")
 	}
 })
 
@@ -93,30 +129,29 @@ router.get('/allprojects', async (req, res) => {
 router.post('/newproject', async (req, res) => {
 	const { title, description, Manager, Developer, Tester, datetime } = req.body
 	const newProject = new Project({ title, description, dateOpened: datetime, manager: Manager, developers: Developer, testers: Tester })
-	const project = await mongodb.connect('mongodb://localhost:27017/bugtracker')
-	.then((client) => {
-		return client.db().collection('projects').findOneAndUpdate({title}, {$set: newProject}, {upsert: true, returnOriginal: false})
-		.then((res) => {
+	const allProjectPersonals = []
+	allProjectPersonals.push(Manager)
+	Developer.forEach((dev) => {allProjectPersonals.push(dev)})
+	Tester.forEach((tester) => {allProjectPersonals.push(tester)})
 
-			const projectId = res.lastErrorObject.upserted
-
-			client.db().collection('sampleUsers').findOneAndUpdate({username: Manager}, {$push: {projects: projectId}})
-			Developer.forEach((dev) => {
-				client.db().collection('sampleUsers').findOneAndUpdate({username: dev}, {$push: {projects: projectId}})
-			})
-			Tester.forEach((tester) => {
-				client.db().collection('sampleUsers').findOneAndUpdate({username: tester}, {$push: {projects: projectId}})
-			})
-			client.close()
-			return res
-		})
-		.catch((err) => {
-			console.log("Project With Same Title Already Exists")
-			client.close()
-		})
+	const project = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
+	.then(async (client) => {
+		const existingProject = await client.db().collection('projects').findOne({ title, manager: Manager })
+		if(existingProject) {
+			await client.close()
+			throw new Error("Project With Same Title Already Exists")
+		}
+		else {
+			const temp = await client.db().collection('projects').findOneAndUpdate({title}, {$set: newProject}, {upsert: true, returnOriginal: false})
+			const projectId = temp.value["_id"]
+			await client.db().collection('sampleUsers').updateMany({ username: { $in: allProjectPersonals } }, { $addToSet: { projects: projectId } })
+			await client.close()
+			return temp
+		}
 	})
 	.catch((err) => {
-		console.log("Could Not Connect to the Database")
+		console.log("Some Error Occurred")
+		console.log(err)
 	})
 
 	if(project) {
