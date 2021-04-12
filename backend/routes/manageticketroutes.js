@@ -5,6 +5,8 @@ const { ObjectID } = require("mongodb")
 const Ticket = require('../models/ticket')
 
 
+//======================================================= GET ROUTES ==============================================================
+
 router.get('/projecttickets', async (req, res) => {
 	const {title} = req.headers
 	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
@@ -50,36 +52,43 @@ router.get('/projecttickets', async (req, res) => {
 
 
 
-router.post('/newticket', async (req, res) => {
-	const {title, description, type, priority, datetime, tester, currentUserProject} = req.body
-	const newTicket = new Ticket({ title, description, type, priority, dateOpened: datetime, tester, projectName: currentUserProject })
-
+router.get('/ticketdevsandtesters', async(req, res) => {
+	const {title, requirement} = req.headers
 	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', {useUnifiedTopology: true})
 	.then(async (client) => {
-		const existingTicket = await client.db().collection('tickets').findOne({ title, projectName: currentUserProject })
-
-		if(existingTicket) {
-			throw new Error("Ticket with Same Title Already Exists")
-		}
-		else {
-			const temp = await client.db().collection('tickets').insertOne(newTicket)
-			const ticketId = temp.ops[0]["_id"]
-			await client.db().collection('sampleUsers').findOneAndUpdate({username: tester}, {$addToSet: {tickets: ticketId}})
-			await client.db().collection('projects').findOneAndUpdate({title: currentUserProject}, {$addToSet: {tickets: ticketId}})
-			await client.close()
-			return temp.ops[0]
-		}
+		const project = await client.db().collection('projects').findOne({ title })
+		const projectId = ObjectID(project["_id"])
+		const users = await client.db().collection('sampleUsers').find({ projects: {$in: [projectId]}, role: {$in: ["developer", "tester"]} }).toArray()
+		await client.close()
+		return users
 	})
 	.catch((err) => {
 		console.log("Some Error Occurred")
 		console.log(err)
 	})
 
-
 	if(result) {
-		const {title, status, priority} = result
-		const finalResult = {title, status, priority}
-		res.status(200).json(finalResult)
+		const finalDevs = []
+		const finalTesters = []
+		if(requirement=="only devs") {
+			result.forEach((user) => {
+				if(user.role=="developer") {
+					finalDevs.push(user.username)
+				}
+			})
+		}
+		else {
+			result.forEach((user) => {
+				if(user.role=="developer") {
+					finalDevs.push(user.username)
+				}
+				else {
+					finalTesters.push(user.username)
+				}
+			})
+		}
+
+		res.status(206).json({devs: finalDevs, testers: finalTesters})
 	}
 	else {
 		res.status(406).send("Fail")
@@ -118,6 +127,59 @@ router.get('/ticketdetails', async (req, res) => {
 		result["type"] += " Issue"
 
 		res.status(200).send(result)
+	}
+	else {
+		res.status(406).send("Fail")
+	}
+})
+
+
+
+//================================================= POST ROUTES ====================================================================
+
+
+
+router.post('/newticket', async (req, res) => {
+	const {title, description, type, priority, assignedDeveloper, assignedTester, currentUserProject} = req.body
+	const {userId} = req.session
+	const currentdate = new Date() 
+	const datetime = currentdate.getDate() + "/" + (currentdate.getMonth()+1)  + "/" 
+	+ currentdate.getFullYear() + ", " + currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true })
+	
+	const newTicket = new Ticket({ title, description, type, priority, dateOpened: datetime, tester: assignedTester, developer: assignedDeveloper, projectName: currentUserProject })
+
+	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', {useUnifiedTopology: true})
+	.then(async (client) => {
+		const existingTicket = await client.db().collection('tickets').findOne({ title, projectName: currentUserProject })
+
+		if(existingTicket) {
+			await client.close()
+			throw new Error("Ticket with Same Title Already Exists")
+		}
+		else {
+			const temp = await client.db().collection('tickets').insertOne(newTicket)
+			const ticketId = temp.ops[0]["_id"]
+			await client.db().collection('sampleUsers').updateMany({username: {$in: [assignedDeveloper, assignedTester]}}, {$addToSet: {tickets: ticketId}})
+			await client.db().collection('projects').findOneAndUpdate({title: currentUserProject}, {$addToSet: {tickets: ticketId}})
+			if(assignedTester=="") {
+				const tester = await client.db().collection('sampleUsers').findOne({ "_id": ObjectID(userId) })
+				const updatedTicket = await client.db().collection('tickets').findOneAndUpdate({title}, {tester: tester.username}, {returnOriginal: false})
+				console.log(updatedTicket)
+			}
+			await client.close()
+			return temp.ops[0]
+		}
+	})
+	.catch((err) => {
+		console.log("Some Error Occurred")
+		console.log(err)
+	})
+
+
+	if(result) {
+		const {title, status, priority} = result
+		const finalResult = {title, status, priority}
+		res.status(200).json(finalResult)
 	}
 	else {
 		res.status(406).send("Fail")
@@ -169,6 +231,9 @@ router.post('/updateticketdetails', async(req, res) => {
 		res.status(406).send("Fail")
 	}
 })
+
+
+//======================================================== DELETE ROUTES ==================================================================
 
 
 router.delete('/deleteticket', async(req, res) => {

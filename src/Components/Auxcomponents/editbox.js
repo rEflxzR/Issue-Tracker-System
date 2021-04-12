@@ -26,25 +26,38 @@ class Editbox extends Component {
     }
 
     async componentDidMount() {
-        const url = `http://${window.location.hostname}:3000/devsandtesters`
-        await axios.get(url)
-        .then((res) => {
-            const allDevs = []
-            const allTesters = []
-            res.data.forEach((user) => {
-                if(user.role==="developer") {
-                    allDevs.push(user.username)
-                }
-                else {
-                    allTesters.push(user.username)
-                }
+        if(this.props.modalCategory==="Ticket") {
+            const url = `http://${window.location.hostname}:8000/ticketdevsandtesters`
+            const title = this.props.projectName
+            await axios.get(url, {headers: {title, requirement: "only devs"}})
+            .then((res) => {
+                this.setState({ allDevs: res.data.devs })
             })
-            this.setState({ allDevs, allTesters })
-        })
-        .catch((err) => {
-            console.log(err)
-            console.log("Failed to Send a Request to the Server")
-        })
+            .catch((err) => {
+                console.log(err)
+            })
+        }
+        else {
+            const url = `http://${window.location.hostname}:8000/devsandtesters`
+            await axios.get(url)
+            .then((res) => {
+                const allDevs = []
+                const allTesters = []
+                res.data.forEach((user) => {
+                    if(user.role==="developer") {
+                        allDevs.push(user.username)
+                    }
+                    else {
+                        allTesters.push(user.username)
+                    }
+                })
+                this.setState({ allDevs, allTesters })
+            })
+            .catch((err) => {
+                console.log(err)
+                console.log("Failed to Send a Request to the Server")
+            })
+        }
     }
 
     editFormInputFieldChange(evt) {
@@ -84,7 +97,7 @@ class Editbox extends Component {
         }
         else {
             if(this.props.modalCategory==="Project") {
-                const url = `http://${window.location.hostname}:3000/updateprojectdetails`
+                const url = `http://${window.location.hostname}:8000/updateprojectdetails`
                 const { title, oldTitle, description, developers, testers, status } = this.state
                 await axios.post(url, {title, oldTitle, description, status, developers, testers})
                 .then((res) => {
@@ -95,7 +108,7 @@ class Editbox extends Component {
                 })
             }
             else {
-                const url = `http://${window.location.hostname}:3000/updateticketdetails`
+                const url = `http://${window.location.hostname}:8000/updateticketdetails`
                 const { title, oldTitle, description, ['developer assigned']: developer, comment, status, priority } = this.state
                 const type = this.state.type.split(" ")[0]
                 const prevDeveloper = this.props.entityInfo['developer assigned']

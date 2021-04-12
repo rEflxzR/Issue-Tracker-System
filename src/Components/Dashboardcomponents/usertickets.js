@@ -20,6 +20,7 @@ const SubmitButton = styled(Button)({
     background: 'linear-gradient(to right, #0575e6, #021b79)'
 })
 
+const userRole = window.localStorage.getItem("Role")
 
 class UserTickets extends Component {
     constructor(props) {
@@ -33,10 +34,13 @@ class UserTickets extends Component {
             projectTickets: [],
             ticketDetails: [],
             allProjectDevs: [],
+            allProjectTesters: [],
             title: "",
             description: "",
             type: "",
             priority: "",
+            assignedDeveloper: "",
+            assignedTester: "",
             currentPageNumber: 1,
             displayModal: false,
             modalType: ""
@@ -54,7 +58,7 @@ class UserTickets extends Component {
     }
 
     async componentDidMount() {
-        const url = `http://${window.location.hostname}:3000/userprojects`
+        const url = `http://${window.location.hostname}:8000/userprojects`
         const username = window.localStorage.getItem('Name')
         axios.get((url), {headers: {username}})
         .then((res) => {
@@ -67,7 +71,7 @@ class UserTickets extends Component {
 
     async componentDidUpdate(prevProps, prevState) {
         if(prevState.updateTickets!==this.state.updateTickets) {
-            const url = `http://${window.location.hostname}:3000/projecttickets`
+            const url = `http://${window.location.hostname}:8000/projecttickets`
             const title = this.state.currentUserProject
             await axios.get((url), {headers: {title}})
             .then((res) => {
@@ -80,7 +84,8 @@ class UserTickets extends Component {
     }
 
     async handleProjectSelectMenuChange(evt) {
-        const url = `http://${window.location.hostname}:3000/projecttickets`
+        const url = `http://${window.location.hostname}:8000/projecttickets`
+        const url2 = `http://${window.location.hostname}:8000/ticketdevsandtesters`
         const title = evt.currentTarget.getAttribute("data-value")
         await axios.get((url), {headers: {title}})
         .then((res) => {
@@ -88,6 +93,14 @@ class UserTickets extends Component {
         })
         .catch((err) => {
             this.setState({ showTickets: false, currentUserProject: title, projectTickets: [] })
+        })
+
+        await axios.get((url2), {headers: {title, requirement: "both"}})
+        .then((res) => {
+            this.setState({ allProjectDevs: res.data.devs, allProjectTesters: res.data.testers })
+        })
+        .catch((err) => {
+            this.setState({ allProjectDevs: [], allProjectTesters: [] })
         })
     }
 
@@ -106,16 +119,12 @@ class UserTickets extends Component {
     }
 
     async handleSubmitClick() {
-        const url = `http://${window.location.hostname}:3000/newticket`
-        const {title, description, priority, type, currentUserProject} = this.state
-        const tester = window.localStorage.getItem("Name")
-        const currentdate = new Date() 
-        const datetime = currentdate.getDate() + "/" + (currentdate.getMonth()+1)  + "/" 
-        + currentdate.getFullYear() + ", " + currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true })
+        const url = `http://${window.location.hostname}:8000/newticket`
+        const {title, description, priority, type, currentUserProject, assignedDeveloper, assignedTester} = this.state
 
-        await axios.post((url), {title, description, priority, type, tester, datetime, currentUserProject})
+        await axios.post((url), {title, description, priority, type, currentUserProject, assignedDeveloper, assignedTester})
         .then((res) => {
-            this.setState({ updateTickets: true, title: "", description: "", type: "", priority: "" })
+            this.setState({ updateTickets: true, title: "", description: "", type: "", priority: "", assignedDeveloper: "", assignedTester: "" })
         })
         .catch((err) => {
             console.log("Could Not Send Request to the Server")
@@ -124,7 +133,7 @@ class UserTickets extends Component {
 
 
     async openDetailsModal(param) {
-        const url = `http://${window.location.hostname}:3000/ticketdetails`
+        const url = `http://${window.location.hostname}:8000/ticketdetails`
         const title = param
         const {currentUserProject} = this.state
 
@@ -138,7 +147,7 @@ class UserTickets extends Component {
     }
 
     async openEditModal(param) {
-        const url = `http://${window.location.hostname}:3000/ticketdetails`
+        const url = `http://${window.location.hostname}:8000/ticketdetails`
         const title = param
         const {currentUserProject} = this.state
         await axios.get(url, {headers: {title, currentUserProject}}, {withCredentials: true})
@@ -224,7 +233,29 @@ class UserTickets extends Component {
                                             </Select>
                                         </FormControl>
                                     </div>
-                                    <div className="ticketformbuttons my-5">
+
+                                    <div className="ticketformfield my-4">
+                                        <FormControl disabled={userRole==="projectmanager" || userRole==="admin" ? false : true} className="ticketforminput" required>
+                                            <InputLabel>Assign Tester</InputLabel>
+                                            <Select onChange={this.handleNewTicketInputChange} value={this.state.assignedTester} >
+                                                {this.state.allProjectTesters.map((tester) => {
+                                                    return <MenuItem id="assignedTester" value={tester}>{tester}</MenuItem>
+                                                })}
+                                            </Select>
+                                        </FormControl>
+                                    </div>
+                                    <div className="ticketformfield my-4">
+                                        <FormControl disabled={userRole==="projectmanager" || userRole==="admin" ? false : true} className="ticketforminput" required>
+                                            <InputLabel>Assign Developer</InputLabel>
+                                            <Select onChange={this.handleNewTicketInputChange} value={this.state.assignedDeveloper} >
+                                                {this.state.allProjectDevs.map((dev) => {
+                                                    return <MenuItem id="assignedDeveloper" value={dev}>{dev}</MenuItem>
+                                                })}
+                                            </Select>
+                                        </FormControl>
+                                    </div>
+
+                                    <div className="ticketformbuttons my-3">
                                         <SubmitButton className="text-light" onClick={this.handleClearClick} size="large" variant="contained"><strong>Reset Details</strong></SubmitButton>
                                         <ClearButton className="text-light" onClick={this.handleSubmitClick} size="large" variant="contained"><strong>Submit Ticket</strong></ClearButton>
                                     </div>
