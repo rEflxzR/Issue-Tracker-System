@@ -9,6 +9,10 @@ import Button from '@material-ui/core/Button'
 import './editbox.css'
 import { capitalize } from '@material-ui/core';
 
+
+const userRole = window.localStorage.getItem("Role")
+
+
 class Editbox extends Component {
     constructor(props) {
         super(props)
@@ -27,7 +31,7 @@ class Editbox extends Component {
 
     async componentDidMount() {
         if(this.props.modalCategory==="Ticket") {
-            const url = `http://${window.location.hostname}:8000/ticketdevsandtesters`
+            const url = `http://${window.location.hostname}:3000/ticketdevsandtesters`
             const title = this.props.projectName
             await axios.get(url, {headers: {title, requirement: "only devs"}})
             .then((res) => {
@@ -38,7 +42,7 @@ class Editbox extends Component {
             })
         }
         else {
-            const url = `http://${window.location.hostname}:8000/devsandtesters`
+            const url = `http://${window.location.hostname}:3000/devsandtesters`
             await axios.get(url)
             .then((res) => {
                 const allDevs = []
@@ -97,7 +101,7 @@ class Editbox extends Component {
         }
         else {
             if(this.props.modalCategory==="Project") {
-                const url = `http://${window.location.hostname}:8000/updateprojectdetails`
+                const url = `http://${window.location.hostname}:3000/updateprojectdetails`
                 const { title, oldTitle, description, developers, testers, status } = this.state
                 await axios.post(url, {title, oldTitle, description, status, developers, testers})
                 .then((res) => {
@@ -108,7 +112,7 @@ class Editbox extends Component {
                 })
             }
             else {
-                const url = `http://${window.location.hostname}:8000/updateticketdetails`
+                const url = `http://${window.location.hostname}:3000/updateticketdetails`
                 const { title, oldTitle, description, ['developer assigned']: developer, comment, status, priority } = this.state
                 const type = this.state.type.split(" ")[0]
                 const prevDeveloper = this.props.entityInfo['developer assigned']
@@ -153,7 +157,7 @@ class Editbox extends Component {
                                         {modalCategory==="Project" ? (<MenuItem menuid="status" value="Abandoned">Abandoned</MenuItem>):(null)}
                                         {modalCategory==="Ticket" ? (<MenuItem menuid="status" value="In Progress">In Progress</MenuItem>):(null)}
                                         {modalCategory==="Ticket" ? (<MenuItem menuid="status" value="Pending Approval">Pending Approval</MenuItem>):(null)}
-                                        {modalCategory==="Ticket" ? (<MenuItem disabled={window.localStorage.getItem("Role")==="developer" ? true : false} menuid="status" value="Resolved">Resolved</MenuItem>):(null)}
+                                        {modalCategory==="Ticket" ? (<MenuItem disabled={userRole==="developer" || userRole==="tester" ? true : false} menuid="status" value="Resolved">Resolved</MenuItem>):(null)}
                                     </Select>
                                 </FormControl>
                             </div>

@@ -162,8 +162,9 @@ router.post('/newticket', async (req, res) => {
 			await client.db().collection('sampleUsers').updateMany({username: {$in: [assignedDeveloper, assignedTester]}}, {$addToSet: {tickets: ticketId}})
 			await client.db().collection('projects').findOneAndUpdate({title: currentUserProject}, {$addToSet: {tickets: ticketId}})
 			if(assignedTester=="") {
-				const tester = await client.db().collection('sampleUsers').findOne({ "_id": ObjectID(userId) })
-				const updatedTicket = await client.db().collection('tickets').findOneAndUpdate({title}, {tester: tester.username}, {returnOriginal: false})
+				const tester = await client.db().collection('sampleUsers').findOneAndUpdate({ "_id": ObjectID(userId) }, {$addToSet: {tickets: ticketId}})
+				const updatedTicket = await client.db().collection('tickets').findOneAndUpdate({title}, {$set: {tester: tester.value.username}}, {returnOriginal: false})
+				console.log("THIS IS THE UPDATED TICKET")
 				console.log(updatedTicket)
 			}
 			await client.close()

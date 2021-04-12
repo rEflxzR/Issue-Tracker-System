@@ -58,7 +58,7 @@ class UserTickets extends Component {
     }
 
     async componentDidMount() {
-        const url = `http://${window.location.hostname}:8000/userprojects`
+        const url = `http://${window.location.hostname}:3000/userprojects`
         const username = window.localStorage.getItem('Name')
         axios.get((url), {headers: {username}})
         .then((res) => {
@@ -71,7 +71,7 @@ class UserTickets extends Component {
 
     async componentDidUpdate(prevProps, prevState) {
         if(prevState.updateTickets!==this.state.updateTickets) {
-            const url = `http://${window.location.hostname}:8000/projecttickets`
+            const url = `http://${window.location.hostname}:3000/projecttickets`
             const title = this.state.currentUserProject
             await axios.get((url), {headers: {title}})
             .then((res) => {
@@ -84,8 +84,8 @@ class UserTickets extends Component {
     }
 
     async handleProjectSelectMenuChange(evt) {
-        const url = `http://${window.location.hostname}:8000/projecttickets`
-        const url2 = `http://${window.location.hostname}:8000/ticketdevsandtesters`
+        const url = `http://${window.location.hostname}:3000/projecttickets`
+        const url2 = `http://${window.location.hostname}:3000/ticketdevsandtesters`
         const title = evt.currentTarget.getAttribute("data-value")
         await axios.get((url), {headers: {title}})
         .then((res) => {
@@ -119,7 +119,7 @@ class UserTickets extends Component {
     }
 
     async handleSubmitClick() {
-        const url = `http://${window.location.hostname}:8000/newticket`
+        const url = `http://${window.location.hostname}:3000/newticket`
         const {title, description, priority, type, currentUserProject, assignedDeveloper, assignedTester} = this.state
 
         await axios.post((url), {title, description, priority, type, currentUserProject, assignedDeveloper, assignedTester})
@@ -133,7 +133,7 @@ class UserTickets extends Component {
 
 
     async openDetailsModal(param) {
-        const url = `http://${window.location.hostname}:8000/ticketdetails`
+        const url = `http://${window.location.hostname}:3000/ticketdetails`
         const title = param
         const {currentUserProject} = this.state
 
@@ -147,7 +147,7 @@ class UserTickets extends Component {
     }
 
     async openEditModal(param) {
-        const url = `http://${window.location.hostname}:8000/ticketdetails`
+        const url = `http://${window.location.hostname}:3000/ticketdetails`
         const title = param
         const {currentUserProject} = this.state
         await axios.get(url, {headers: {title, currentUserProject}}, {withCredentials: true})
