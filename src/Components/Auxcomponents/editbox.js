@@ -30,38 +30,17 @@ class Editbox extends Component {
     }
 
     async componentDidMount() {
-        if(this.props.modalCategory==="Ticket") {
-            const url = `http://${window.location.hostname}:3000/ticketdevsandtesters`
-            const title = this.props.projectName
-            await axios.get(url, {headers: {title, requirement: "only devs"}})
-            .then((res) => {
-                this.setState({ allDevs: res.data.devs })
-            })
-            .catch((err) => {
-                console.log(err)
-            })
-        }
-        else {
-            const url = `http://${window.location.hostname}:3000/devsandtesters`
-            await axios.get(url)
-            .then((res) => {
-                const allDevs = []
-                const allTesters = []
-                res.data.forEach((user) => {
-                    if(user.role==="developer") {
-                        allDevs.push(user.username)
-                    }
-                    else {
-                        allTesters.push(user.username)
-                    }
-                })
-                this.setState({ allDevs, allTesters })
-            })
-            .catch((err) => {
-                console.log(err)
-                console.log("Failed to Send a Request to the Server")
-            })
-        }
+        const url = `http://${window.location.hostname}:3000/projectdevsandtesters`
+        const title = this.props.modalCategory==="Ticket" ? this.props.projectName : this.props.entityInfo.title
+        const requirement = this.props.modalCategory==="Ticket" ? "only project" : "all"
+        await axios.get(url, {headers: {title, requirement}})
+        .then((res) => {
+            this.setState({ allDevs: res.data.devs, allTesters: res.data.testers })
+        })
+        .catch((err) => {
+            console.log("Could Not Send A Request to the Backend")
+            console.log(err)
+        })
     }
 
     editFormInputFieldChange(evt) {
@@ -102,8 +81,8 @@ class Editbox extends Component {
         else {
             if(this.props.modalCategory==="Project") {
                 const url = `http://${window.location.hostname}:3000/updateprojectdetails`
-                const { title, oldTitle, description, developers, testers, status } = this.state
-                await axios.post(url, {title, oldTitle, description, status, developers, testers})
+                const { title, oldTitle, description, developers, testers, status, manager } = this.state
+                await axios.post(url, {title, oldTitle, description, status, developers, testers, manager})
                 .then((res) => {
                     this.props.closeModal("closeModal")
                 })

@@ -19,6 +19,9 @@ const SubmitButton = styled(Button)({
     background: 'linear-gradient(to right, #0575e6, #021b79)'
 })
 
+const userRole = window.localStorage.getItem("Role")
+
+
 class ManageProjects extends Component {
     constructor(props) {
         super(props)
@@ -133,11 +136,11 @@ class ManageProjects extends Component {
         this.setState({ currentPageNumber: param })
     }
 
-    async openDetailsModal(val) {
-        console.log(val)
-        const title = val
+    async openDetailsModal(param1, param2) {
+        const title = param1
+        const manager = param2
         const url = `http://${window.location.hostname}:3000/projectdetails`
-        await axios.get(url, {headers: {title}})
+        await axios.get(url, {headers: {title, manager}})
         .then((res) => {
             this.setState({ projectDetails: res.data, displayModal: true, modalType: "detail" })
         })
@@ -206,9 +209,9 @@ class ManageProjects extends Component {
                             </div>
                             <div className="projectformbuttondiv my-5">
                                 <div className="projectformbuttons">
-                                    <ClearButton className="text-light" disabled={window.localStorage.getItem("Role")==="admin" || window.localStorage.getItem("Role")==="projectmanager" ? false : true} 
+                                    <ClearButton className="text-light" disabled={userRole==="admin" || userRole==="projectmanager" ? false : true} 
                                     onClick={this.handleClearButtonClick} size="large" variant="contained"><strong>CLEAR</strong></ClearButton>
-                                    <SubmitButton className="text-light" disabled={window.localStorage.getItem("Role")==="admin" || window.localStorage.getItem("Role")==="projectmanager" ? false : true} 
+                                    <SubmitButton className="text-light" disabled={userRole==="admin" || userRole==="projectmanager" ? false : true} 
                                     onClick={this.handleSubmitButtonClick} size="large" variant="contained"><strong>SUBMIT</strong></SubmitButton>
                                 </div>
                             </div>

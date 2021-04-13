@@ -28,13 +28,13 @@ class Box extends Component {
 
     handleBoxButtonClick(evt) {
         if(evt.currentTarget.getAttribute("type")==="detail") {
-            this.props.detailsModal(evt.currentTarget.getAttribute("value"))
+            this.props.detailsModal(evt.currentTarget.getAttribute("value"), evt.currentTarget.getAttribute("secondval"))
         }
         else if(evt.currentTarget.getAttribute("type")==="edit") {
-            this.props.editModal(evt.currentTarget.getAttribute("value"))
+            this.props.editModal(evt.currentTarget.getAttribute("value"), evt.currentTarget.getAttribute("secondval"))
         }
         else {
-            this.props.deleteModal(evt.currentTarget.getAttribute("value"))
+            this.props.deleteModal(evt.currentTarget.getAttribute("value"), evt.currentTarget.getAttribute("secondval"))
         }
     }
 
@@ -72,13 +72,13 @@ class Box extends Component {
                                                     })
                                                 }
                                                 {
-                                                    this.props.detailButton ? <td className={`col col-${this.props.width[Object.keys(entity).length]}`}><DetailButton disabled={disableDetailButton ? true : false} value={entity[this.props.buttonContentId]} type="detail" className="text-light" onClick={this.handleBoxButtonClick} size="small" variant="contained"><strong>DETAILS</strong></DetailButton></td> : null
+                                                    this.props.detailButton ? <td className={`col col-${this.props.width[Object.keys(entity).length]}`}><DetailButton disabled={disableDetailButton ? true : false} value={entity[this.props.buttonContentId]} secondval={entity[this.props.buttonContentSecondId]} type="detail" className="text-light" onClick={this.handleBoxButtonClick} size="small" variant="contained"><strong>DETAILS</strong></DetailButton></td> : null
                                                 }
                                                 {
-                                                    this.props.editButton ? <td className={`col col-${this.props.width[Object.keys(entity).length+1]}`}><EditButton disabled={disableEditButton ? true : false} value={entity[this.props.buttonContentId]} type="edit" className="text-light" onClick={this.handleBoxButtonClick} size="small" variant="contained"><strong>CHANGE</strong></EditButton></td> : null
+                                                    this.props.editButton ? <td className={`col col-${this.props.width[Object.keys(entity).length+1]}`}><EditButton disabled={disableEditButton ? true : false} value={entity[this.props.buttonContentId]} secondval={entity[this.props.buttonContentSecondId]} type="edit" className="text-light" onClick={this.handleBoxButtonClick} size="small" variant="contained"><strong>CHANGE</strong></EditButton></td> : null
                                                 }
                                                 {
-                                                    this.props.deleteButton ? <td className={`col col-${this.props.width[Object.keys(entity).length+2]}`}><DeleteButton disabled={disableDeleteButton ? true : false} value={entity[this.props.buttonContentId]} type="delete" className="text-light" onClick={this.handleBoxButtonClick} size="small" variant="contained"><strong>DELETE</strong></DeleteButton></td> : null
+                                                    this.props.deleteButton ? <td className={`col col-${this.props.width[Object.keys(entity).length+2]}`}><DeleteButton disabled={disableDeleteButton ? true : false} value={entity[this.props.buttonContentId]} secondval={entity[this.props.buttonContentSecondId]} type="delete" className="text-light" onClick={this.handleBoxButtonClick} size="small" variant="contained"><strong>DELETE</strong></DeleteButton></td> : null
                                                 }
                                                 </tr>
                                         })

@@ -4,6 +4,10 @@ import Box from '../Auxcomponents/tablebox'
 import Modal from '../Auxcomponents/modal'
 import './userprojects.css'
 
+
+const userRole = window.localStorage.getItem("Role")
+
+
 class UserProjects extends Component {
     constructor(props) {
         super(props)
@@ -25,8 +29,7 @@ class UserProjects extends Component {
 
     async componentDidMount() {
         const url = `http://${window.location.hostname}:3000/userprojects`
-        const username = window.localStorage.getItem("Name")
-        await axios.get(url, {headers: {username}}, {withCredentials: true})
+        await axios.get(url, {withCredentials: true})
         .then((res) => {
             this.setState({ minProjectsData: res.data })
         })
@@ -38,8 +41,7 @@ class UserProjects extends Component {
     async componentDidUpdate(prevProps, prevState) {
         if(prevState.updateDisplay!==this.state.updateDisplay) {
             const url = `http://${window.location.hostname}:3000/userprojects`
-            const username = window.localStorage.getItem("Name")
-            await axios.get(url, {headers: {username}}, {withCredentials: true})
+            await axios.get(url, {withCredentials: true})
             .then((res) => {
                 this.setState({ minProjectsData: res.data, updateDisplay: false })
             })
@@ -49,10 +51,12 @@ class UserProjects extends Component {
         }
     }
 
-    async openDetailsModal(param) {
+    async openDetailsModal(param1, param2) {
         const url = `http://${window.location.hostname}:3000/myprojectdetails`
-        const title = param
-        await axios.get(url, {headers: {title}}, {withCredentials: true})
+        const title = param1
+        const manager = param2
+        console.log(param1, param2)
+        await axios.get(url, {headers: {title, manager}}, {withCredentials: true})
         .then((res) => {
             this.setState({ detailedProjectsData: res.data, displayModal: true, modalType: "detail" })
         })
@@ -61,10 +65,12 @@ class UserProjects extends Component {
         })
     }
 
-    async openEditModal(param) {
+    async openEditModal(param1, param2) {
         const url = `http://${window.location.hostname}:3000/myprojectdetails`
-        const title = param
-        await axios.get(url, {headers: {title}}, {withCredentials: true})
+        const title = param1
+        const manager = param2
+        console.log(param1, param2)
+        await axios.get(url, {headers: {title, manager}}, {withCredentials: true})
         .then((res) => {
             this.setState({ detailedProjectsData: res.data, displayModal: true, modalType: "edit" })
         })
@@ -73,8 +79,9 @@ class UserProjects extends Component {
         })
     }
 
-    openDeleteModal(param) {
-        this.setState({ detailedProjectsData: {title: param}, displayModal: true, modalType: "delete" })
+    openDeleteModal(param1, param2) {
+        console.log(param1, param2)
+        this.setState({ detailedProjectsData: {title: param1, manager: param2}, displayModal: true, modalType: "delete" })
     }
 
     toggleModalDisplay(param) {
@@ -102,11 +109,11 @@ class UserProjects extends Component {
                                 togglePage={this.pageToggle} totalEntries={minProjectsData.length} page={currentPageNumber} 
                                 heading={[{title:"TITLE"}, {title:"MANAGER"}, {title:"STATUS"}, {title: ""}, {title: ""}, {title: ""}]}
                                 width={[3,3,2,1,1,2]} 
-                                detailButton={true} buttonContentId="title" detailsModal={this.openDetailsModal}
+                                detailButton={true} buttonContentId="title" buttonContentSecondId="manager" detailsModal={this.openDetailsModal}
                                 editButton={true} editModal={this.openEditModal}
-                                disableEditButton={window.localStorage.getItem("Role")==="developer" || window.localStorage.getItem("Role")==="tester" ? true : false}
+                                disableEditButton={userRole==="developer" || userRole==="tester" ? true : false}
                                 deleteButton={true} deleteModal={this.openDeleteModal} 
-                                disableDeleteButton={window.localStorage.getItem("Role")==="developer" || window.localStorage.getItem("Role")==="tester" ? true : false}
+                                disableDeleteButton={userRole==="developer" || userRole==="tester" ? true : false}
                                 />
                             })
                         }

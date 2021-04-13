@@ -70,8 +70,8 @@ class Modal extends Component {
                         {modalCategory==="project" && modalType==="delete" && <Deletebox type={modalCategory} title={entityInfo.title} closeModal={this.closeModal} />}
 
 
-                        {modalCategory==="ticket" && modalType==="detail" && <div className={`col col-${showTickets ? 6 : 10}`}><Displaybox moddedProps={moddedProps} moddedPropsKeys={moddedPropsKeys} title={entityInfo.title} description={entityInfo.description} /></div>}
-                        {modalType==="detail" && showTickets && <div className="col col-6"><Box title="Ticket Comments" body={entityInfo["comments"].slice(currentPageNumber*10-10, currentPageNumber*10)}
+                        {modalCategory==="ticket" && modalType==="detail" && <div className={`col col-${showTickets ? 5 : 10}`}><Displaybox moddedProps={moddedProps} moddedPropsKeys={moddedPropsKeys} title={entityInfo.title} description={entityInfo.description} /></div>}
+                        {modalType==="detail" && showTickets && <div className="col col-7"><Box title="Ticket Comments" body={entityInfo["comments"].slice(currentPageNumber*10-10, currentPageNumber*10)}
                             togglePage={this.pageToggle} totalEntries={entityInfo["comments"].length} page={currentPageNumber} 
                             heading={[{title:"COMMENT"}, {title:"DATE"}]}
                             width={[9,3]} smallFont={true} headColor={"#2cd499"}
@@ -84,7 +84,7 @@ class Modal extends Component {
                             width={[9,3]} smallFont={true} headColor={"#ffba24"}
                         /></div>}
 
-                        {modalCategory==="ticket" && modalType==="delete" && <Deletebox type={modalCategory} title={entityInfo.title} closeModal={this.closeModal} />}                    </div>
+                        {modalCategory==="ticket" && modalType==="delete" && <Deletebox type={modalCategory} title={entityInfo.title} manager={entityInfo.manager} closeModal={this.closeModal} />}                    </div>
                 </div>
             </div>
         )

@@ -2,7 +2,12 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
+import { styled } from '@material-ui/core/styles';
 import './Loginbox.css'
+
+const LoginButton = styled(Button)({
+    background: 'linear-gradient(to right, #269c1e, #269c1e)'
+})
 
 
 class Loginbox extends Component {
@@ -57,7 +62,7 @@ class Loginbox extends Component {
                         <TextField required onChange={this.handleInputChange} value={this.state.password} className="forminput" id="password" label="Password" type="password" />
                     </div>
                     <div className="inputdiv loginbutton">
-                        <Button onClick={this.handleSubmitClick} size="large" variant="contained" color="primary">Sign In</Button>
+                        <LoginButton onClick={this.handleSubmitClick} size="large" variant="contained" color="primary">Sign In</LoginButton>
                     </div>
                 </form>
             </div>

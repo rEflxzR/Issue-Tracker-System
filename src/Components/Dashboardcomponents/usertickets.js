@@ -85,17 +85,17 @@ class UserTickets extends Component {
 
     async handleProjectSelectMenuChange(evt) {
         const url = `http://${window.location.hostname}:3000/projecttickets`
-        const url2 = `http://${window.location.hostname}:3000/ticketdevsandtesters`
+        const url2 = `http://${window.location.hostname}:3000/projectdevsandtesters`
         const title = evt.currentTarget.getAttribute("data-value")
         await axios.get((url), {headers: {title}})
         .then((res) => {
             this.setState({ showTickets: true, currentUserProject: title, projectTickets: res.data })
         })
         .catch((err) => {
-            this.setState({ showTickets: false, currentUserProject: title, projectTickets: [] })
+            this.setState({ showTickets: true, currentUserProject: title, projectTickets: [] })
         })
 
-        await axios.get((url2), {headers: {title, requirement: "both"}})
+        await axios.get((url2), {headers: {title, requirement: "only project"}})
         .then((res) => {
             this.setState({ allProjectDevs: res.data.devs, allProjectTesters: res.data.testers })
         })

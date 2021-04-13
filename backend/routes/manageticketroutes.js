@@ -9,10 +9,11 @@ const Ticket = require('../models/ticket')
 
 router.get('/projecttickets', async (req, res) => {
 	const {title} = req.headers
+	const {userId} = req.session
 	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
     .then(async (client) => {
         const temp = await client.db().collection('projects').aggregate([
-            {$match: {title}},
+            {$match: {title, "_id": userId}},
             {$lookup: {
                 from: 'tickets',
                 localField: 'tickets',
@@ -52,15 +53,22 @@ router.get('/projecttickets', async (req, res) => {
 
 
 
-router.get('/ticketdevsandtesters', async(req, res) => {
+router.get('/projectdevsandtesters', async(req, res) => {
 	const {title, requirement} = req.headers
 	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', {useUnifiedTopology: true})
 	.then(async (client) => {
-		const project = await client.db().collection('projects').findOne({ title })
-		const projectId = ObjectID(project["_id"])
-		const users = await client.db().collection('sampleUsers').find({ projects: {$in: [projectId]}, role: {$in: ["developer", "tester"]} }).toArray()
-		await client.close()
-		return users
+		if(requirement=="only project") {
+			const project = await client.db().collection('projects').findOne({ title })
+			const projectId = ObjectID(project["_id"])
+			const users = await client.db().collection('users').find({projects: {$in: [projectId]}, role: {$in: ["developer", "tester"]}}).toArray()
+			await client.close()
+			return users
+		}
+		else {
+			const users = await client.db().collection('users').find({role: {$in: ["developer", "tester"]}}).toArray()
+			await client.close()
+			return users
+		}
 	})
 	.catch((err) => {
 		console.log("Some Error Occurred")
@@ -70,23 +78,14 @@ router.get('/ticketdevsandtesters', async(req, res) => {
 	if(result) {
 		const finalDevs = []
 		const finalTesters = []
-		if(requirement=="only devs") {
-			result.forEach((user) => {
-				if(user.role=="developer") {
-					finalDevs.push(user.username)
-				}
-			})
-		}
-		else {
-			result.forEach((user) => {
-				if(user.role=="developer") {
-					finalDevs.push(user.username)
-				}
-				else {
-					finalTesters.push(user.username)
-				}
-			})
-		}
+		result.forEach((user) => {
+			if(user.role=="developer") {
+				finalDevs.push(user.username)
+			}
+			else {
+				finalTesters.push(user.username)
+			}
+		})
 
 		res.status(206).json({devs: finalDevs, testers: finalTesters})
 	}
@@ -159,13 +158,16 @@ router.post('/newticket', async (req, res) => {
 		else {
 			const temp = await client.db().collection('tickets').insertOne(newTicket)
 			const ticketId = temp.ops[0]["_id"]
-			await client.db().collection('sampleUsers').updateMany({username: {$in: [assignedDeveloper, assignedTester]}}, {$addToSet: {tickets: ticketId}})
+			await client.db().collection('users').updateMany({username: {$in: [assignedDeveloper, assignedTester]}}, {$addToSet: {tickets: ticketId}})
 			await client.db().collection('projects').findOneAndUpdate({title: currentUserProject}, {$addToSet: {tickets: ticketId}})
 			if(assignedTester=="") {
-				const tester = await client.db().collection('sampleUsers').findOneAndUpdate({ "_id": ObjectID(userId) }, {$addToSet: {tickets: ticketId}})
+				const tester = await client.db().collection('users').findOneAndUpdate({ "_id": ObjectID(userId) }, {$addToSet: {tickets: ticketId}})
 				const updatedTicket = await client.db().collection('tickets').findOneAndUpdate({title}, {$set: {tester: tester.value.username}}, {returnOriginal: false})
 				console.log("THIS IS THE UPDATED TICKET")
 				console.log(updatedTicket)
+			}
+			if(assignedDeveloper!="") {
+				await client.db().collection('tickets').findOneAndUpdate({title}, {$set: {status: "In Progress"}})
 			}
 			await client.close()
 			return temp.ops[0]
@@ -213,8 +215,8 @@ router.post('/updateticketdetails', async(req, res) => {
 				temp = await client.db().collection('tickets').findOneAndUpdate({ title: oldTitle }, {$set: { title, description, developer, status, type, priority} }, {returnOriginal: false})
 			}
 			const ticketId = ObjectID(temp.value["_id"])
-			await client.db().collection('sampleUsers').findOneAndUpdate({ username: prevDeveloper }, {$pull: {tickets: ticketId }}, {returnOriginal: false})
-			await client.db().collection('sampleUsers').findOneAndUpdate({ username: developer }, {$addToSet: {tickets: ticketId }}, {returnOriginal: false})
+			await client.db().collection('users').findOneAndUpdate({ username: prevDeveloper }, {$pull: {tickets: ticketId }}, {returnOriginal: false})
+			await client.db().collection('users').findOneAndUpdate({ username: developer }, {$addToSet: {tickets: ticketId }}, {returnOriginal: false})
 			await client.close()
 			return temp
 		}
@@ -246,7 +248,7 @@ router.delete('/deleteticket', async(req, res) => {
 		const developer = temp.value.developer
 		const tester = temp.value.tester
 		const projectTitle = temp.value.projectName
-		await client.db().collection('sampleUsers').updateMany({username: {$in: [developer, tester]}}, {$pull: {tickets: ticketId}})
+		await client.db().collection('users').updateMany({username: {$in: [developer, tester]}}, {$pull: {tickets: ticketId}})
 		await client.db().collection('projects').updateMany({title: projectTitle}, {$pull: {tickets: ticketId}})
 		await client.close()
 		return temp

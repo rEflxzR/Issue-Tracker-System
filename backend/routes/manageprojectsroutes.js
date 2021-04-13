@@ -90,10 +90,11 @@ router.get('/allprojects', async (req, res) => {
 
 
 router.get('/projectdetails', async (req, res) => {
-	const {title} = req.headers
+	const {title, manager} = req.headers
+	console.log(manager)
 	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
 	.then(async (client) => {
-		const temp = await client.db().collection('projects').findOne({ title }, { projection: { _id: 0 } })
+		const temp = await client.db().collection('projects').findOne({title, manager}, { projection: { _id: 0 } })
 		await client.close()
 		if(temp) {
 			return temp
@@ -120,17 +121,14 @@ router.get('/projectdetails', async (req, res) => {
 })
 
 
-
 //======================================= POST ROUTES =============================================
 
 
 router.post('/newproject', async (req, res) => {
 	const { title, description, Manager, Developer, Tester, datetime } = req.body
+	const {userId} = req.session
 	const newProject = new Project({ title, description, dateOpened: datetime, manager: Manager, developers: Developer, testers: Tester })
 	const allProjectPersonals = [Manager, ...Developer, ...Tester]
-	// allProjectPersonals.push(Manager)
-	// Developer.forEach((dev) => {allProjectPersonals.push(dev)})
-	// Tester.forEach((tester) => {allProjectPersonals.push(tester)})
 
 	const project = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
 	.then(async (client) => {
@@ -142,7 +140,8 @@ router.post('/newproject', async (req, res) => {
 		else {
 			const temp = await client.db().collection('projects').insertOne(newProject)
 			const projectId = temp.ops[0]["_id"]
-			await client.db().collection('sampleUsers').updateMany({ username: { $in: allProjectPersonals } }, { $addToSet: { projects: projectId } })
+			await client.db().collection('users').updateMany({ username: { $in: allProjectPersonals } }, { $addToSet: { projects: projectId } })
+			await client.db().collection('users').updateMany({ role: "admin" }, { $addToSet: { projects: projectId } })
 			await client.close()
 			return temp.ops[0]
 		}

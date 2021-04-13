@@ -6,7 +6,13 @@ import MenuItem from '@material-ui/core/MenuItem'
 import Select from '@material-ui/core/Select'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
+import { styled } from '@material-ui/core/styles';
 import './Signupbox.css'
+
+const SignupButton = styled(Button)({
+    background: 'linear-gradient(to right, #269c1e, #269c1e)'
+})
+
 
 class Signupbox extends Component {
     constructor(props) {
@@ -99,7 +105,7 @@ class Signupbox extends Component {
                         </FormControl>
                     </div>
                     <div className="signupinputdiv signupbutton">
-                        <Button onClick={this.handleSubmitClick} size="large" variant="contained" color="primary">Sign Up</Button>
+                        <SignupButton onClick={this.handleSubmitClick} size="large" variant="contained" color="primary">Sign Up</SignupButton>
                     </div>
                 </form>
             </div>

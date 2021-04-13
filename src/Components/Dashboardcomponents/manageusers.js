@@ -17,6 +17,8 @@ const SubmitButton = styled(Button)({
     background: 'linear-gradient(to right, #0575e6, #021b79)'
 })
 
+const userRole = window.localStorage.getItem("Role")
+
 
 class ManageUsers extends Component {
     constructor(props) {
@@ -134,8 +136,8 @@ class ManageUsers extends Component {
                                 </div>
 
                                 <div className="formbuttons my-4">
-                                    <ClearButton className="text-light" disabled={window.localStorage.getItem("Role")==="admin" ? false : true} onClick={this.handleClearClick} size="large" variant="contained"><strong>Clear Choices</strong></ClearButton>
-                                    <SubmitButton className="text-light" disabled={window.localStorage.getItem("Role")==="admin" ? false : true} onClick={this.handleSubmitClick} size="large" variant="contained"><strong>Submit</strong></SubmitButton>
+                                    <ClearButton className="text-light" disabled={userRole==="admin" ? false : true} onClick={this.handleClearClick} size="large" variant="contained"><strong>Clear Choices</strong></ClearButton>
+                                    <SubmitButton className="text-light" disabled={userRole==="admin" ? false : true} onClick={this.handleSubmitClick} size="large" variant="contained"><strong>Submit</strong></SubmitButton>
                                 </div>
                             </form>
                         </div>

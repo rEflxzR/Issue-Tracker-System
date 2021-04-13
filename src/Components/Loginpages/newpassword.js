@@ -2,7 +2,13 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
+import { styled } from '@material-ui/core/styles';
 import './Newpassword.css'
+
+const ResetButton = styled(Button)({
+    background: 'linear-gradient(to right, #269c1e, #269c1e)'
+})
+
 
 class Newpassword extends Component {
     constructor(props) {
@@ -69,7 +75,7 @@ class Newpassword extends Component {
                         <TextField required helperText={this.state.passwordsMatch ? 'Passwords do Not Match' : ''} error={this.state.passwordsMatch} onChange={this.handleInputChange} value={this.state.passwordConfirmation} onClick={this.changePasswordConfStatus} className="signupforminput" id="passwordConfirmation" label="Re-Enter You New Password" type="password" />
                     </div>
                     <div className="passwordresetinputdiv passwordresetbutton">
-                        <Button onClick={this.handleSubmitClick} size="large" variant="contained" color="primary">RESET PASSWORD</Button>
+                        <ResetButton onClick={this.handleSubmitClick} size="large" variant="contained" color="primary">RESET PASSWORD</ResetButton>
                     </div>
                 </form>
             </div>

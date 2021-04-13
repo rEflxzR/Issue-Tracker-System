@@ -9,7 +9,7 @@ router.get('/userprojects', async (req, res) => {
     const {userId} = req.session
     const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
     .then((client) => {
-        return client.db().collection('sampleUsers').aggregate([
+        return client.db().collection('users').aggregate([
             {$match: {"_id": ObjectId(userId)}},
             {$lookup: {
                 from: 'projects',
@@ -41,11 +41,12 @@ router.get('/userprojects', async (req, res) => {
 })
 
 
+
 router.get('/myprojectdetails', async (req, res) => {
-    const {title} = req.headers
+    const {title, manager} = req.headers
     const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
     .then(async (client) => {
-        const temp = await client.db().collection('projects').findOne({ title }, { projection: { _id: 0 }})
+        const temp = await client.db().collection('projects').findOne({title, manager}, { projection: { _id: 0 }})
         await client.close()
         if(temp) {
             return temp
@@ -73,60 +74,33 @@ router.get('/myprojectdetails', async (req, res) => {
 })
 
 
-router.get('/devsandtesters', async (req, res) => {
-    const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
-    .then(async (client) => {
-        const temp = await client.db().collection('sampleUsers').find({ "role": {$in: ["developer", "tester"]} }).toArray()
-        await client.close()
-        if(temp.length==0) {
-            throw new Error("Cannot Find any Developers or Testers in the Collection")
-        }
-        else {
-            return temp
-        }
-    })
-    .catch((err) => {
-        console.log("Some Error Occurred")
-        console.log(err)
-    })
-
-
-    if(result) {
-        res.status(200).send(result)
-    }
-    else {
-        res.status(406).send("Fail")
-    }
-})
-
-
-
-
 
 //========================================= POST ROUTES ===============================================
 
 router.post('/updateprojectdetails', async (req, res) => {
-    const { title, oldTitle, description, status, developers, testers } = req.body
-    const {userId} = req.session
+    const { title, oldTitle, description, status, developers, testers, manager } = req.body
+    const newProjectUsers = [...developers, ...testers]
 
     const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
     .then(async (client) => {
-        const projectManagerName = await client.db().collection('sampleUsers').findOne({ "_id": ObjectId(userId) })
-        const existingProject = await client.db().collection('projects').findOne({ title, manager: projectManagerName.username })
-        if(existingProject) {
+        const existingProject = await client.db().collection('projects').findOne({title, manager})
+        if(existingProject && oldTitle!=title) {
             await client.close()
             throw new Error("Project with Same Title Already Exists")
         }
         else {
             const temp = await client.db().collection('projects').findOneAndUpdate({ title: oldTitle }, {$set: {title, description, status, developers, testers}}, {returnOriginal: false})
+            const projectId = ObjectId(temp.value["_id"])
             const projectName = temp.value.title
             const allTickets = temp.value.tickets
             const ticketIds = []
             for(let ticket of allTickets) {
                 ticketIds.push(ObjectId(ticket))
             }
-
-            await client.db().collection('tickets').updateMany({ "_id": { $in: ticketIds } }, {$set: {projectName}})
+            await client.db().collection('tickets').updateMany({"_id": {$in: ticketIds}}, {$set: {projectName}})
+            
+            await client.db().collection('users').updateMany({username: {$nin: newProjectUsers}, role: {$in: ["developer", "tester"]}, projects: projectId}, {$pull: {projects: projectId }, $pullAll: {tickets: ticketIds}})
+            await client.db().collection('users').updateMany({username: {$in: newProjectUsers}}, {$addToSet: {projects: projectId}})
             await client.close()
             return temp
         }
@@ -160,7 +134,8 @@ router.delete('/deleteproject', async(req, res) => {
         const allProjectUsers = [temp.value.manager, ...temp.value.developers, ...temp.value.testers]
 
         await client.db().collection('tickets').deleteMany({ projectName })
-        await client.db().collection('sampleUsers').updateMany({username: {$in: allProjectUsers}}, {$pullAll: {tickets: ticketIds}, $pull: {projects: projectId}})
+        await client.db().collection('users').updateMany({username: {$in: allProjectUsers}}, {$pullAll: {tickets: ticketIds}, $pull: {projects: projectId}})
+        await client.db().collection('users').updateMany({role: "admin"}, {$pullAll: {tickets: ticketIds}, $pull: {projects: projectId}})
         await client.close()
         
         if(temp) {
