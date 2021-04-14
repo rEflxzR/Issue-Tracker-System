@@ -172,7 +172,7 @@ class ManageProjects extends Component {
                                 <TextField required value={this.state.description} onChange={this.handleProjectTextInputChange} id="projectdescription" className="descriptioninput py-2" label="Enter Project Description" type="text"/>
                             </div>
                             <div className="projectforminputdiv my-4">
-                                <FormControl required className="userselectmenu">
+                                <FormControl disabled={userRole==="projectmanager" ? true : false} required={userRole==="projectmanager" ? false : true} className="userselectmenu">
                                     <InputLabel>Project Manager</InputLabel>
                                     <Select value={this.state.Manager} onChange={this.handleProjectManagerChange}>
                                         {
@@ -224,7 +224,7 @@ class ManageProjects extends Component {
                                 togglePage={this.pageToggle} totalEntries={projectData.length} page={currentPageNumber} 
                                 heading={[{title:"TITLE"}, {title:"MANAGER"}, {title:"STATUS"}, {title: ""}]}
                                 width={[4,3,3,2]} 
-                                detailButton={true} buttonContentId="title" detailsModal={this.openDetailsModal}
+                                detailButton={true} buttonContentId="title" buttonContentSecondId="manager" detailsModal={this.openDetailsModal}
                                 />
                             })
                         }

@@ -1,5 +1,6 @@
 const express = require("express")
 const mongodb = require("mongodb").MongoClient
+const {ObjectID} = require("mongodb")
 const router = express.Router()
 const Project = require('../models/project')
 
@@ -59,7 +60,7 @@ router.get('/userandprojectdetails', async (req, res) => {
 
 
 router.get('/allprojects', async (req, res) => {
-	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker')
+	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', {useUnifiedTopology: true})
 	.then(async (client) => {
 		const temp = await client.db().collection('projects').find({}).toArray()
 		await client.close()
@@ -91,7 +92,6 @@ router.get('/allprojects', async (req, res) => {
 
 router.get('/projectdetails', async (req, res) => {
 	const {title, manager} = req.headers
-	console.log(manager)
 	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
 	.then(async (client) => {
 		const temp = await client.db().collection('projects').findOne({title, manager}, { projection: { _id: 0 } })
@@ -128,11 +128,20 @@ router.post('/newproject', async (req, res) => {
 	const { title, description, Manager, Developer, Tester, datetime } = req.body
 	const {userId} = req.session
 	const newProject = new Project({ title, description, dateOpened: datetime, manager: Manager, developers: Developer, testers: Tester })
-	const allProjectPersonals = [Manager, ...Developer, ...Tester]
+	const allProjectPersonals = [...Developer, ...Tester]
 
 	const project = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
 	.then(async (client) => {
-		const existingProject = await client.db().collection('projects').findOne({ title, manager: Manager })
+
+		let projectManager = Manager
+		if(Manager=="") {
+			const temp = await client.db().collection('users').findOne({"_id": ObjectID(userId)}, { projection: { "_id": 0, username: 1 }})
+			projectManager = temp.username
+			newProject.manager = projectManager
+			allProjectPersonals.push(projectManager)
+		}
+
+		const existingProject = await client.db().collection('projects').findOne({ title, manager: projectManager })
 		if(existingProject) {
 			await client.close()
 			throw new Error("Project With Same Title Already Exists")

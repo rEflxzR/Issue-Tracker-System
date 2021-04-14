@@ -12,24 +12,12 @@ router.get('/projecttickets', async (req, res) => {
 	const {userId} = req.session
 	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
     .then(async (client) => {
-        const temp = await client.db().collection('projects').aggregate([
-            {$match: {title, "_id": userId}},
-            {$lookup: {
-                from: 'tickets',
-                localField: 'tickets',
-                foreignField: '_id',
-                as: 'projectTickets'
-            }},
-            {$project: {"_id": 0}}
-        ]).toArray()
 
+		const allUserTickets = await client.db().collection('users').findOne({"_id": ObjectID(userId)}, {projection: {"_id": 0, tickets: 1}})
+		const ticketIds = allUserTickets.tickets
+		const ticketDetails = await client.db().collection('tickets').find({"_id": {$in: ticketIds}, projectName: title}).toArray()
 		await client.close()
-		if(temp.length==0) {
-			throw new Error("Could Not Find any Tickets for the Given Project Title")
-		}
-		else {
-			return temp
-		}
+		return ticketDetails
     })
     .catch((err) => {
 		console.log("Some Error Occurred")
@@ -39,7 +27,7 @@ router.get('/projecttickets', async (req, res) => {
 
 	if(result) {
 		const finalResult = []
-		for(let ticket of result[0].projectTickets) {
+		for(let ticket of result) {
 			const {title, status, priority} = ticket
 			finalResult.push({title, status, priority})
 		}
