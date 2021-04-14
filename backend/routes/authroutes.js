@@ -177,7 +177,7 @@ router.post('/passwordreset', async (req, res) => {
             requireTLS: true,
             auth: {
                 user: 'noreply.bugtrackermgmt@gmail.com',
-                pass: 'misfitactual'
+                pass: 'this is not the actual password :P'
             }
         })
           

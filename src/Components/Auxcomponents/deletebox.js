@@ -18,8 +18,8 @@ class Deletebox extends Component {
         else {
             url = `http://${window.location.hostname}:3000/deleteticket`
         }
-        const {title, manager} = this.props
-        await axios.delete(url, {data: {title, manager}})
+        const {title, manager, projectName} = this.props
+        await axios.delete(url, {data: {title, manager, projectName}})
         .then((res) => {
             this.props.closeModal("closeModal")
         })

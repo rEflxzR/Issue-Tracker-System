@@ -43,10 +43,12 @@ router.get('/projecttickets', async (req, res) => {
 
 router.get('/projectdevsandtesters', async(req, res) => {
 	const {title, requirement} = req.headers
+	const {userId} = req.session
 	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', {useUnifiedTopology: true})
 	.then(async (client) => {
 		if(requirement=="only project") {
-			const project = await client.db().collection('projects').findOne({ title })
+			const manager = await client.db().collection('users').findOne({"_id": ObjectID(userId)}, {projection: {"_id": 0, username: 1}})
+			const project = await client.db().collection('projects').findOne({title, manager: manager.username})
 			const projectId = ObjectID(project["_id"])
 			const users = await client.db().collection('users').find({projects: {$in: [projectId]}, role: {$in: ["developer", "tester"]}}).toArray()
 			await client.close()
@@ -138,6 +140,7 @@ router.post('/newticket', async (req, res) => {
 	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', {useUnifiedTopology: true})
 	.then(async (client) => {
 		const existingTicket = await client.db().collection('tickets').findOne({ title, projectName: currentUserProject })
+		console.log(existingTicket)
 
 		if(existingTicket) {
 			await client.close()
@@ -155,6 +158,8 @@ router.post('/newticket', async (req, res) => {
 				console.log(updatedTicket)
 			}
 			if(assignedDeveloper!="") {
+				await client.db().collection('users').findOneAndUpdate({"_id": ObjectID(userId)}, {$addToSet: {tickets: ticketId}})
+				await client.db().collection('users').findOneAndUpdate({role: "admin"}, {$addToSet: {tickets: ticketId}})
 				await client.db().collection('tickets').findOneAndUpdate({title}, {$set: {status: "In Progress"}})
 			}
 			await client.close()
@@ -229,9 +234,10 @@ router.post('/updateticketdetails', async(req, res) => {
 
 router.delete('/deleteticket', async(req, res) => {
 	const {title} = req.body
+	console.log(req.body)
 	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', {useUnifiedTopology: true})
 	.then(async (client) => {
-		const temp = await client.db().collection('tickets').findOneAndDelete({title})
+		const temp = await client.db().collection('tickets').findOneAndDelete({title, projectName})
 		const ticketId = ObjectID(temp.value["_id"])
 		const developer = temp.value.developer
 		const tester = temp.value.tester

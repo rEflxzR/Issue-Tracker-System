@@ -67,7 +67,7 @@ class Modal extends Component {
                     <div onClick={this.closeModal} className={`${showTickets ? "modal-box-narrow" : "modal-box"} row offset-1`}>
                         {modalCategory==="project" && modalType==="detail" && <div className={`col col-${showTickets ? 6 : 10}`}><Displaybox moddedProps={moddedProps} moddedPropsKeys={moddedPropsKeys} title={entityInfo.title} description={entityInfo.description} /></div>}
                         {modalCategory==="project" && modalType==="edit" && <div className={`col col-${showTickets ? 6 : 8}`}><Editbox modalCategory="Project" entityInfo={{...entityInfo}} closeModal={this.closeModal} /></div>}
-                        {modalCategory==="project" && modalType==="delete" && <Deletebox type={modalCategory} title={entityInfo.title} closeModal={this.closeModal} />}
+                        {modalCategory==="project" && modalType==="delete" && <Deletebox type={modalCategory} title={entityInfo.title} manager={entityInfo.manager} closeModal={this.closeModal} />}
 
 
                         {modalCategory==="ticket" && modalType==="detail" && <div className={`col col-${showTickets ? 5 : 10}`}><Displaybox moddedProps={moddedProps} moddedPropsKeys={moddedPropsKeys} title={entityInfo.title} description={entityInfo.description} /></div>}
@@ -84,7 +84,7 @@ class Modal extends Component {
                             width={[9,3]} smallFont={true} headColor={"#ffba24"}
                         /></div>}
 
-                        {modalCategory==="ticket" && modalType==="delete" && <Deletebox type={modalCategory} title={entityInfo.title} manager={entityInfo.manager} closeModal={this.closeModal} />}                    </div>
+                        {modalCategory==="ticket" && modalType==="delete" && <Deletebox type={modalCategory} title={entityInfo.title} projectName={projectName} closeModal={this.closeModal} />}</div>
                 </div>
             </div>
         )

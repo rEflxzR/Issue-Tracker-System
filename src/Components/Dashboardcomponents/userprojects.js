@@ -55,7 +55,6 @@ class UserProjects extends Component {
         const url = `http://${window.location.hostname}:3000/myprojectdetails`
         const title = param1
         const manager = param2
-        console.log(param1, param2)
         await axios.get(url, {headers: {title, manager}}, {withCredentials: true})
         .then((res) => {
             this.setState({ detailedProjectsData: res.data, displayModal: true, modalType: "detail" })
@@ -69,7 +68,6 @@ class UserProjects extends Component {
         const url = `http://${window.location.hostname}:3000/myprojectdetails`
         const title = param1
         const manager = param2
-        console.log(param1, param2)
         await axios.get(url, {headers: {title, manager}}, {withCredentials: true})
         .then((res) => {
             this.setState({ detailedProjectsData: res.data, displayModal: true, modalType: "edit" })
@@ -80,7 +78,6 @@ class UserProjects extends Component {
     }
 
     openDeleteModal(param1, param2) {
-        console.log(param1, param2)
         this.setState({ detailedProjectsData: {title: param1, manager: param2}, displayModal: true, modalType: "delete" })
     }
 

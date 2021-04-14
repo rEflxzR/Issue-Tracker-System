@@ -89,7 +89,7 @@ router.post('/updateprojectdetails', async (req, res) => {
             throw new Error("Project with Same Title Already Exists")
         }
         else {
-            const temp = await client.db().collection('projects').findOneAndUpdate({ title: oldTitle }, {$set: {title, description, status, developers, testers}}, {returnOriginal: false})
+            const temp = await client.db().collection('projects').findOneAndUpdate({ title: oldTitle, manager }, {$set: {title, description, status, developers, testers}}, {returnOriginal: false})
             const projectId = ObjectId(temp.value["_id"])
             const projectName = temp.value.title
             const allTickets = temp.value.tickets
@@ -112,7 +112,7 @@ router.post('/updateprojectdetails', async (req, res) => {
 
 
     if(result) {
-        res.status(200).json({ title, description, status, developers, testers })
+        res.status(200).json("Success")
     }
     else {
         res.status(406).send("Fail")
@@ -124,10 +124,11 @@ router.post('/updateprojectdetails', async (req, res) => {
 //========================================= DELETE ROUTES ===============================================
 
 router.delete('/deleteproject', async(req, res) => {
-    const {title} = req.body
+    const {title, manager} = req.body
+    console.log(manager)
     const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
     .then(async (client) => {
-        const temp = await client.db().collection('projects').findOneAndDelete({ title })
+        const temp = await client.db().collection('projects').findOneAndDelete({title, manager})
         const projectName = temp.value.title
         const projectId = temp.value["_id"]
         const ticketIds = temp.value.tickets

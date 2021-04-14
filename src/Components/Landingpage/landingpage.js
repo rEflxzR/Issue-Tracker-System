@@ -19,6 +19,10 @@ class Landingpage extends Component {
 		this.setNewPassword = this.setNewPassword.bind(this)
 	}
 
+	componentDidMount() {
+		window.localStorage.clear()
+	}
+
 	linkClickHandler(evt) {
 		evt.preventDefault()
 		if(evt.currentTarget.text[0]==='L') {
