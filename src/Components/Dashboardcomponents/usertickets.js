@@ -29,6 +29,7 @@ class UserTickets extends Component {
         this.state = {
             allUserProjects: [],
             currentUserProject: "",
+            currentProjectManager: "",
             showTickets: false,
             updateTickets: false,
             projectTickets: [],
@@ -87,15 +88,16 @@ class UserTickets extends Component {
         const url = `http://${window.location.hostname}:3000/projecttickets`
         const url2 = `http://${window.location.hostname}:3000/projectdevsandtesters`
         const title = evt.currentTarget.getAttribute("data-value")
+        const manager = evt.currentTarget.getAttribute("secondvalue")
         await axios.get((url), {headers: {title}})
         .then((res) => {
-            this.setState({ showTickets: true, currentUserProject: title, projectTickets: res.data })
+            this.setState({showTickets: true, currentUserProject: title, currentProjectManager: manager, projectTickets: res.data})
         })
         .catch((err) => {
             this.setState({ showTickets: true, currentUserProject: title, projectTickets: [] })
         })
 
-        await axios.get((url2), {headers: {title, requirement: "only project"}})
+        await axios.get((url2), {headers: {title, manager, requirement: "only project"}})
         .then((res) => {
             this.setState({ allProjectDevs: res.data.devs, allProjectTesters: res.data.testers })
         })
@@ -120,9 +122,9 @@ class UserTickets extends Component {
 
     async handleSubmitClick() {
         const url = `http://${window.location.hostname}:3000/newticket`
-        const {title, description, priority, type, currentUserProject, assignedDeveloper, assignedTester} = this.state
+        const {title, description, priority, type, currentUserProject, currentProjectManager, assignedDeveloper, assignedTester} = this.state
 
-        await axios.post((url), {title, description, priority, type, currentUserProject, assignedDeveloper, assignedTester})
+        await axios.post((url), {title, description, priority, type, currentUserProject, currentProjectManager, assignedDeveloper, assignedTester})
         .then((res) => {
             this.setState({ updateTickets: true, title: "", description: "", type: "", priority: "", assignedDeveloper: "", assignedTester: "" })
         })
@@ -191,7 +193,7 @@ class UserTickets extends Component {
                             <Select value={this.state.currentUserProject} onChange={this.handleProjectSelectMenuChange}>
                                 {
                                     this.state.allUserProjects.map((project) => {
-                                        return <MenuItem key={project.title} value={project.title}>{project.title}</MenuItem>
+                                        return <MenuItem key={project.title} value={project.title} secondvalue={project.manager}>{project.title}</MenuItem>
                                     })
                                 }
                             </Select>
@@ -204,61 +206,63 @@ class UserTickets extends Component {
                         !this.state.showTickets ? (null) : (
                                 <div className="newticketform col col-4">
                                 <form>
-                                    <h2 className="text-center text-light py-5" style={{ backgroundColor: 'rgb(6, 6, 83)' }}><strong>ADD A NEW TICKET</strong></h2>
-                                    <div className="ticketformfield my-4">
-                                        <TextField className="ticketforminput" required value={this.state.title} onChange={this.handleNewTicketInputChange} id="title" label="Enter A Title for the Ticket" type="text"/>
-                                    </div>
-                                    <div className="ticketformfield my-4">
-                                        <TextField className="ticketforminput" required value={this.state.description} onChange={this.handleNewTicketInputChange} id="description" label="Enter a Brief Description for the Ticket" type="text"/>
-                                    </div>
-                                    <div className="ticketformfield my-4">
-                                        <FormControl className="ticketforminput" required>
-                                            <InputLabel>Ticket Issue Type</InputLabel>
-                                            <Select onChange={this.handleNewTicketInputChange} value={this.state.type} >
-                                                <MenuItem id="type" value="Functional">Functional</MenuItem>
-                                                <MenuItem id="type" value="Performance">Performance</MenuItem>
-                                                <MenuItem id="type" value="Usability">Usability</MenuItem>
-                                                <MenuItem id="type" value="Compatibility">Compatibility</MenuItem>
-                                                <MenuItem id="type" value="Security">Security</MenuItem>
-                                            </Select>
-                                        </FormControl>
-                                    </div>
-                                    <div className="ticketformfield my-4">
-                                        <FormControl className="ticketforminput" required>
-                                            <InputLabel>Ticket Priority</InputLabel>
-                                            <Select onChange={this.handleNewTicketInputChange} value={this.state.priority} >
-                                                <MenuItem id="priority" value="High">High</MenuItem>
-                                                <MenuItem id="priority" value="Medium">Medium</MenuItem>
-                                                <MenuItem id="priority" value="Low">Low</MenuItem>
-                                            </Select>
-                                        </FormControl>
-                                    </div>
+                                    <fieldset disabled={userRole==="admin" || userRole==="developer" ? true : false}>
+                                        <h2 className="text-center text-light py-5" style={{ backgroundColor: 'rgb(6, 6, 83)' }}><strong>ADD A NEW TICKET</strong></h2>
+                                        <div className="ticketformfield my-4">
+                                            <TextField className="ticketforminput" required value={this.state.title} onChange={this.handleNewTicketInputChange} id="title" label="Enter A Title for the Ticket" type="text"/>
+                                        </div>
+                                        <div className="ticketformfield my-4">
+                                            <TextField className="ticketforminput" required value={this.state.description} onChange={this.handleNewTicketInputChange} id="description" label="Enter a Brief Description for the Ticket" type="text"/>
+                                        </div>
+                                        <div className="ticketformfield my-4">
+                                            <FormControl className="ticketforminput" required>
+                                                <InputLabel>Ticket Issue Type</InputLabel>
+                                                <Select onChange={this.handleNewTicketInputChange} value={this.state.type} >
+                                                    <MenuItem id="type" value="Functional">Functional</MenuItem>
+                                                    <MenuItem id="type" value="Performance">Performance</MenuItem>
+                                                    <MenuItem id="type" value="Usability">Usability</MenuItem>
+                                                    <MenuItem id="type" value="Compatibility">Compatibility</MenuItem>
+                                                    <MenuItem id="type" value="Security">Security</MenuItem>
+                                                </Select>
+                                            </FormControl>
+                                        </div>
+                                        <div className="ticketformfield my-4">
+                                            <FormControl className="ticketforminput" required>
+                                                <InputLabel>Ticket Priority</InputLabel>
+                                                <Select onChange={this.handleNewTicketInputChange} value={this.state.priority} >
+                                                    <MenuItem id="priority" value="High">High</MenuItem>
+                                                    <MenuItem id="priority" value="Medium">Medium</MenuItem>
+                                                    <MenuItem id="priority" value="Low">Low</MenuItem>
+                                                </Select>
+                                            </FormControl>
+                                        </div>
 
-                                    <div className="ticketformfield my-4">
-                                        <FormControl disabled={userRole==="projectmanager" || userRole==="admin" ? false : true} className="ticketforminput" required>
-                                            <InputLabel>Assign Tester</InputLabel>
-                                            <Select onChange={this.handleNewTicketInputChange} value={this.state.assignedTester} >
-                                                {this.state.allProjectTesters.map((tester) => {
-                                                    return <MenuItem id="assignedTester" value={tester}>{tester}</MenuItem>
-                                                })}
-                                            </Select>
-                                        </FormControl>
-                                    </div>
-                                    <div className="ticketformfield my-4">
-                                        <FormControl disabled={userRole==="projectmanager" || userRole==="admin" ? false : true} className="ticketforminput" required>
-                                            <InputLabel>Assign Developer</InputLabel>
-                                            <Select onChange={this.handleNewTicketInputChange} value={this.state.assignedDeveloper} >
-                                                {this.state.allProjectDevs.map((dev) => {
-                                                    return <MenuItem id="assignedDeveloper" value={dev}>{dev}</MenuItem>
-                                                })}
-                                            </Select>
-                                        </FormControl>
-                                    </div>
+                                        <div className="ticketformfield my-4">
+                                            <FormControl disabled={userRole==="projectmanager" ? false : true} className="ticketforminput" required>
+                                                <InputLabel>Assign Tester</InputLabel>
+                                                <Select onChange={this.handleNewTicketInputChange} value={this.state.assignedTester} >
+                                                    {this.state.allProjectTesters.map((tester) => {
+                                                        return <MenuItem id="assignedTester" value={tester}>{tester}</MenuItem>
+                                                    })}
+                                                </Select>
+                                            </FormControl>
+                                        </div>
+                                        <div className="ticketformfield my-4">
+                                            <FormControl disabled={userRole==="projectmanager" ? false : true} className="ticketforminput" required>
+                                                <InputLabel>Assign Developer</InputLabel>
+                                                <Select onChange={this.handleNewTicketInputChange} value={this.state.assignedDeveloper} >
+                                                    {this.state.allProjectDevs.map((dev) => {
+                                                        return <MenuItem id="assignedDeveloper" value={dev}>{dev}</MenuItem>
+                                                    })}
+                                                </Select>
+                                            </FormControl>
+                                        </div>
 
-                                    <div className="ticketformbuttons my-3">
-                                        <SubmitButton className="text-light" onClick={this.handleClearClick} size="large" variant="contained"><strong>Reset Details</strong></SubmitButton>
-                                        <ClearButton className="text-light" onClick={this.handleSubmitClick} size="large" variant="contained"><strong>Submit Ticket</strong></ClearButton>
-                                    </div>
+                                        <div className="ticketformbuttons my-3">
+                                            <SubmitButton disabled={userRole==="admin" || userRole==="developer" ? true : false} className="text-light" onClick={this.handleClearClick} size="large" variant="contained"><strong>Reset Details</strong></SubmitButton>
+                                            <ClearButton disabled={userRole==="admin" || userRole==="developer" ? true : false} className="text-light" onClick={this.handleSubmitClick} size="large" variant="contained"><strong>Submit Ticket</strong></ClearButton>
+                                        </div>
+                                    </fieldset>
                                 </form>
                             </div>
                         )
@@ -272,9 +276,11 @@ class UserTickets extends Component {
                                     togglePage={this.pageToggle} totalEntries={projectTickets.length} page={currentPageNumber} 
                                     heading={[{title:"TICKET NAME"}, {title:"STATUS"}, {title:"PRIORITY"}, {title: ""}, {title: ""}, {title: ""}]}
                                     width={[4,3,2,1,1,1]} 
-                                    detailButton={true} buttonContentId="title" detailsModal={this.openDetailsModal}
+                                    detailButton={true} buttonContentId="title" buttonContentSecondId="manager" detailsModal={this.openDetailsModal}
                                     editButton={true} editModal={this.openEditModal}
+                                    disableEditButton={userRole==="admin" ? true : false}
                                     deleteButton={true} deleteModal={this.openDeleteModal}
+                                    disableDeleteButton={userRole==="admin" || userRole==="developer" ? true : false}
                                     />
                                 })
                             }
@@ -284,6 +290,7 @@ class UserTickets extends Component {
                 <div className="userticketmodal">
                     {this.state.displayModal && <Modal display={this.state.displayModal} modalType={this.state.modalType} toggleDisplay={this.toggleModalDisplay} 
                         entityInfo={this.state.ticketDetails} modalCategory="ticket" showTickets={true} updateEditModal={this.openEditModal} projectName={this.state.currentUserProject}
+                        projectManager={this.state.currentProjectManager}
                     />}
                 </div>
             </div>

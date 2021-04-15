@@ -8,17 +8,12 @@ const router = express.Router()
 router.get('/userprojects', async (req, res) => {
     const {userId} = req.session
     const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
-    .then((client) => {
-        return client.db().collection('users').aggregate([
-            {$match: {"_id": ObjectId(userId)}},
-            {$lookup: {
-                from: 'projects',
-                localField: 'projects',
-                foreignField: '_id',
-                as: 'userProjectsData'
-            }},
-            {$project: {"_id": 0}}
-        ], {"_id": 0}).toArray()
+    .then(async (client) => {
+        const userProjectIds = await client.db().collection('users').findOne({"_id": ObjectId(userId)})
+        const userProjects = await client.db().collection('projects').find({"_id": {$in: userProjectIds.projects}}, {projection: {"_id": 0, title: 1, manager: 1, status: 1}}).toArray()
+        await client.close()
+        return userProjects
+        
     })
     .catch((err) => {
         console.log("Some Error Occurred")
@@ -28,7 +23,7 @@ router.get('/userprojects', async (req, res) => {
 
     if(result) {
         const finalResult = []
-        for(let project of result[0].userProjectsData) {
+        for(let project of result) {
             const { title, manager, status } = project
             finalResult.push({title, manager, status})
         }
@@ -125,16 +120,16 @@ router.post('/updateprojectdetails', async (req, res) => {
 
 router.delete('/deleteproject', async(req, res) => {
     const {title, manager} = req.body
-    console.log(manager)
     const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
     .then(async (client) => {
         const temp = await client.db().collection('projects').findOneAndDelete({title, manager})
-        const projectName = temp.value.title
+        // const projectName = temp.value.title
         const projectId = temp.value["_id"]
         const ticketIds = temp.value.tickets
         const allProjectUsers = [temp.value.manager, ...temp.value.developers, ...temp.value.testers]
 
-        await client.db().collection('tickets').deleteMany({ projectName })
+        // await client.db().collection('tickets').deleteMany({ projectName })
+        await client.db().collection('tickets').deleteMany({"_id": {$in: ticketIds}})
         await client.db().collection('users').updateMany({username: {$in: allProjectUsers}}, {$pullAll: {tickets: ticketIds}, $pull: {projects: projectId}})
         await client.db().collection('users').updateMany({role: "admin"}, {$pullAll: {tickets: ticketIds}, $pull: {projects: projectId}})
         await client.close()

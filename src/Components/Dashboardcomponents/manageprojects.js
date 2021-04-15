@@ -44,13 +44,11 @@ class ManageProjects extends Component {
         }
 
         this.handleProjectTextInputChange = this.handleProjectTextInputChange.bind(this)
-        this.handleProjectManagerChange = this.handleProjectManagerChange.bind(this)
+        this.handleSelectFieldMenuChange = this.handleSelectFieldMenuChange.bind(this)
         this.handleSubmitButtonClick = this.handleSubmitButtonClick.bind(this)
         this.handleClearButtonClick = this.handleClearButtonClick.bind(this)
-        this.handleDeveloperChange = this.handleDeveloperChange.bind(this)
-        this.handleTesterChange = this.handleTesterChange.bind(this)
-        this.openDetailsModal = this.openDetailsModal.bind(this)
         this.toggleModalDisplay = this.toggleModalDisplay.bind(this)
+        this.openDetailsModal = this.openDetailsModal.bind(this)
         this.pageToggle = this.pageToggle.bind(this)
     }
 
@@ -89,22 +87,25 @@ class ManageProjects extends Component {
         }
     }
 
-    handleProjectManagerChange(evt) {
-        this.setState({ Manager: evt.currentTarget.getAttribute("data-value") })
-    }
+    handleSelectFieldMenuChange(evt) {
+        const id = evt.currentTarget.getAttribute("menuid")
+        const value = evt.currentTarget.getAttribute("data-value")
 
-    handleDeveloperChange(evt) {
-        const devname = evt.currentTarget.getAttribute("data-value")
-        if(this.state.Developer.indexOf(devname)===-1) {
-            this.setState({ Developer: [...this.state.Developer, devname] })
+        if(id==="Manager") {
+            this.setState({ [id]: value })
         }
-    }
+        else {
+            const indexval = this.state[id].indexOf(value)
+            if(indexval===-1) {
+                this.setState({ [id]: [value, ...this.state[id]] })
+            }
+            else {
+                let arr = this.state[id]
+                arr = arr.slice(0, indexval).concat(arr.slice(indexval+1))
+                this.setState({ [id]: arr })
+            }
+        }
 
-    handleTesterChange(evt) {
-        const testname = evt.currentTarget.getAttribute("data-value")
-        if(this.state.Tester.indexOf(testname)===-1) {
-            this.setState({ Tester: [...this.state.Tester, testname] })
-        }
     }
 
     handleClearButtonClick() {
@@ -164,57 +165,59 @@ class ManageProjects extends Component {
                 <div className="userprojectrow row">
                     <div className="projectform col col-4">
                         <form>
-                            <h2 className="text-center text-light py-5" style={{ backgroundColor: 'rgb(6, 6, 83)' }}><strong>NEW PROJECT</strong></h2>
-                            <div className="projectforminputdiv my-4">
-                                <TextField helperText={this.state.formError ? 'Project Title Already Exists' : ''} error={this.state.formError} onClick={() => {this.setState({ formError: false })}} required value={this.state.title} onChange={this.handleProjectTextInputChange} id="projecttitle" className="titleinput py-2" label="Enter Project Title" type="text"/>
-                            </div>
-                            <div className="projectforminputdiv my-4">
-                                <TextField required value={this.state.description} onChange={this.handleProjectTextInputChange} id="projectdescription" className="descriptioninput py-2" label="Enter Project Description" type="text"/>
-                            </div>
-                            <div className="projectforminputdiv my-4">
-                                <FormControl disabled={userRole==="projectmanager" ? true : false} required={userRole==="projectmanager" ? false : true} className="userselectmenu">
-                                    <InputLabel>Project Manager</InputLabel>
-                                    <Select value={this.state.Manager} onChange={this.handleProjectManagerChange}>
-                                        {
-                                            this.state.projectManagers.map((pm) => {
-                                                return <MenuItem key={pm.username} value={pm.username}>{pm.username}</MenuItem>
-                                            })
-                                        }
-                                    </Select>
-                                </FormControl>
-                            </div>
-                            <div className="projectforminputdiv my-4">
-                                <FormControl required className="userselectmenu">
-                                    <InputLabel>Developers</InputLabel>
-                                    <Select multiple renderValue={() => this.state.Developer.join(", ")}  value={this.state.Developer} onChange={this.handleDeveloperChange}>
-                                        {
-                                            this.state.developers.map((dev) => {
-                                                return <MenuItem key={dev.username} value={dev.username}>{dev.username}</MenuItem>
-                                            })
-                                        }
-                                    </Select>
-                                </FormControl>
-                            </div>
-                            <div className="projectforminputdiv my-4">
-                                <FormControl required className="userselectmenu">
-                                    <InputLabel>Testers</InputLabel>
-                                    <Select multiple renderValue={() => this.state.Tester.join(", ")} value={this.state.Tester} onChange={this.handleTesterChange}>
-                                        {
-                                            this.state.testers.map((test) => {
-                                                return <MenuItem key={test.username} value={test.username}>{test.username}</MenuItem>
-                                            })
-                                        }
-                                    </Select>
-                                </FormControl>
-                            </div>
-                            <div className="projectformbuttondiv my-5">
-                                <div className="projectformbuttons">
-                                    <ClearButton className="text-light" disabled={userRole==="admin" || userRole==="projectmanager" ? false : true} 
-                                    onClick={this.handleClearButtonClick} size="large" variant="contained"><strong>CLEAR</strong></ClearButton>
-                                    <SubmitButton className="text-light" disabled={userRole==="admin" || userRole==="projectmanager" ? false : true} 
-                                    onClick={this.handleSubmitButtonClick} size="large" variant="contained"><strong>SUBMIT</strong></SubmitButton>
+                            <fieldset disabled={userRole==="developer" || userRole==="tester" ? true : false}>
+                                <h2 className="text-center text-light py-5" style={{ backgroundColor: 'rgb(6, 6, 83)' }}><strong>NEW PROJECT</strong></h2>
+                                <div className="projectforminputdiv my-4">
+                                    <TextField helperText={this.state.formError ? 'Project Title Already Exists' : ''} error={this.state.formError} onClick={() => {this.setState({ formError: false })}} required value={this.state.title} onChange={this.handleProjectTextInputChange} id="projecttitle" className="titleinput py-2" label="Enter Project Title" type="text"/>
                                 </div>
-                            </div>
+                                <div className="projectforminputdiv my-4">
+                                    <TextField required value={this.state.description} onChange={this.handleProjectTextInputChange} id="projectdescription" className="descriptioninput py-2" label="Enter Project Description" type="text"/>
+                                </div>
+                                <div className="projectforminputdiv my-4">
+                                    <FormControl disabled={userRole==="projectmanager" ? true : false} required={userRole==="projectmanager" ? false : true} className="userselectmenu">
+                                        <InputLabel>Project Manager</InputLabel>
+                                        <Select value={this.state.Manager} onChange={this.handleSelectFieldMenuChange}>
+                                            {
+                                                this.state.projectManagers.map((pm) => {
+                                                    return <MenuItem menuid="Manager" key={pm.username} value={pm.username}>{pm.username}</MenuItem>
+                                                })
+                                            }
+                                        </Select>
+                                    </FormControl>
+                                </div>
+                                <div className="projectforminputdiv my-4">
+                                    <FormControl required className="userselectmenu">
+                                        <InputLabel>Developers</InputLabel>
+                                        <Select multiple renderValue={() => this.state.Developer.join(", ")}  value={this.state.Developer} onChange={this.handleSelectFieldMenuChange}>
+                                            {
+                                                this.state.developers.map((dev) => {
+                                                    return <MenuItem menuid="Developer" key={dev.username} value={dev.username}>{dev.username}</MenuItem>
+                                                })
+                                            }
+                                        </Select>
+                                    </FormControl>
+                                </div>
+                                <div className="projectforminputdiv my-4">
+                                    <FormControl required className="userselectmenu">
+                                        <InputLabel>Testers</InputLabel>
+                                        <Select multiple renderValue={() => this.state.Tester.join(", ")} value={this.state.Tester} onChange={this.handleSelectFieldMenuChange}>
+                                            {
+                                                this.state.testers.map((test) => {
+                                                    return <MenuItem menuid="Tester" key={test.username} value={test.username}>{test.username}</MenuItem>
+                                                })
+                                            }
+                                        </Select>
+                                    </FormControl>
+                                </div>
+                                <div className="projectformbuttondiv my-5">
+                                    <div className="projectformbuttons">
+                                        <ClearButton className="text-light" disabled={userRole==="admin" || userRole==="projectmanager" ? false : true} 
+                                        onClick={this.handleClearButtonClick} size="large" variant="contained"><strong>CLEAR</strong></ClearButton>
+                                        <SubmitButton className="text-light" disabled={userRole==="admin" || userRole==="projectmanager" ? false : true} 
+                                        onClick={this.handleSubmitButtonClick} size="large" variant="contained"><strong>SUBMIT</strong></SubmitButton>
+                                    </div>
+                                </div>
+                            </fieldset>
                         </form>
                     </div>
                     <div className="projectbox col col-7">

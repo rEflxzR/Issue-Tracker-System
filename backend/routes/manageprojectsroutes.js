@@ -136,10 +136,11 @@ router.post('/newproject', async (req, res) => {
 		let projectManager = Manager
 		if(Manager=="") {
 			const temp = await client.db().collection('users').findOne({"_id": ObjectID(userId)}, { projection: { "_id": 0, username: 1 }})
+			console.log(temp)
 			projectManager = temp.username
 			newProject.manager = projectManager
-			allProjectPersonals.push(projectManager)
 		}
+		allProjectPersonals.push(projectManager)
 
 		const existingProject = await client.db().collection('projects').findOne({ title, manager: projectManager })
 		if(existingProject) {

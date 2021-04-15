@@ -33,7 +33,8 @@ class Editbox extends Component {
         const url = `http://${window.location.hostname}:3000/projectdevsandtesters`
         const title = this.props.modalCategory==="Ticket" ? this.props.projectName : this.props.entityInfo.title
         const requirement = this.props.modalCategory==="Ticket" ? "only project" : "all"
-        await axios.get(url, {headers: {title, requirement}})
+        const manager = this.props.projectManager
+        await axios.get(url, {headers: {title, requirement, manager}})
         .then((res) => {
             this.setState({ allDevs: res.data.devs, allTesters: res.data.testers })
         })
@@ -122,18 +123,18 @@ class Editbox extends Component {
                     <div className="editModalForm">
                         <form>
                             <div className="editFormInputField mx-auto">
-                                <TextField value={this.state.title} onChange={this.editFormInputFieldChange} id="title" className="fieldInnerDiv" label={`${modalCategory} Title`} type="text"/>
+                                <TextField disabled={userRole==="developer" || (userRole==="tester" && modalCategory==="Project") ? true : false} value={this.state.title} onChange={this.editFormInputFieldChange} id="title" className="fieldInnerDiv" label={`${modalCategory} Title`} type="text"/>
                             </div>
                             <div className="editFormInputField mx-auto">
-                                <TextField value={this.state.description} onChange={this.editFormInputFieldChange} id="description" className="fieldInnerDiv" label={`${modalCategory} Description`} type="text"/>
+                                <TextField disabled={userRole==="developer" || (userRole==="tester" && modalCategory==="Project") ? true : false} value={this.state.description} onChange={this.editFormInputFieldChange} id="description" className="fieldInnerDiv" label={`${modalCategory} Description`} type="text"/>
                             </div>
                             <div className="editFormInputField mx-auto">
                                 <FormControl className="fieldInnerDiv">
                                     <InputLabel>{modalCategory} Status</InputLabel>
                                     <Select onChange={this.editFormSelectFieldChange} renderValue={() => capitalize(this.state.status)} value={this.state.status}>
                                         <MenuItem disabled={this.state["developer assigned"]!=="---Not Assigned Yet---" ? true : false} menuid="status" value="Open">Open</MenuItem>
-                                        {modalCategory==="Project" ? (<MenuItem menuid="status" value="Complete">Complete</MenuItem>):(null)}
-                                        {modalCategory==="Project" ? (<MenuItem menuid="status" value="Abandoned">Abandoned</MenuItem>):(null)}
+                                        {modalCategory==="Project" ? (<MenuItem disabled={userRole==="developer" || userRole==="tester" ? true : false} menuid="status" value="Complete">Complete</MenuItem>):(null)}
+                                        {modalCategory==="Project" ? (<MenuItem disabled={userRole==="developer" || userRole==="tester" ? true : false} menuid="status" value="Abandoned">Abandoned</MenuItem>):(null)}
                                         {modalCategory==="Ticket" ? (<MenuItem menuid="status" value="In Progress">In Progress</MenuItem>):(null)}
                                         {modalCategory==="Ticket" ? (<MenuItem menuid="status" value="Pending Approval">Pending Approval</MenuItem>):(null)}
                                         {modalCategory==="Ticket" ? (<MenuItem disabled={userRole==="developer" || userRole==="tester" ? true : false} menuid="status" value="Resolved">Resolved</MenuItem>):(null)}
@@ -144,7 +145,7 @@ class Editbox extends Component {
                             {
                                 modalCategory==="Ticket" ? 
                                 (<div className="editFormInputField mx-auto">
-                                    <FormControl className="fieldInnerDiv">
+                                    <FormControl disabled={userRole==="developer" ? true : false} className="fieldInnerDiv">
                                         <InputLabel>{modalCategory} Type</InputLabel>
                                         <Select onChange={this.editFormSelectFieldChange} renderValue={() => capitalize(this.state.type)} value={this.state.type}>
                                             <MenuItem menuid="type" value="Functional">Functional</MenuItem>
@@ -160,7 +161,7 @@ class Editbox extends Component {
                             {
                                 modalCategory==="Ticket" ? 
                                 (<div className="editFormInputField mx-auto">
-                                    <FormControl className="fieldInnerDiv">
+                                    <FormControl disabled={userRole==="developer" ? true : false} className="fieldInnerDiv">
                                         <InputLabel>{modalCategory} Priority</InputLabel>
                                         <Select onChange={this.editFormSelectFieldChange} renderValue={() => capitalize(this.state.priority)} value={this.state.priority}>
                                             <MenuItem menuid="priority" value="High">High</MenuItem>
@@ -173,7 +174,7 @@ class Editbox extends Component {
 
                             { modalCategory==="Project" ?
                                 (<div className="editFormInputField mx-auto">
-                                    <FormControl className="fieldInnerDiv">
+                                    <FormControl disabled={userRole==="projectmanager" || userRole==="admin" ? false : true} className="fieldInnerDiv">
                                         <InputLabel>Project Developers</InputLabel>
                                         <Select multiple={modalCategory==="project" ? true : false} onChange={this.editFormSelectFieldChange} renderValue={() => this.state.developers.join(", ")} value={this.state.developers}>
                                             {
@@ -185,7 +186,7 @@ class Editbox extends Component {
                                     </FormControl>
                                 </div>) :
                                 (<div className="editFormInputField mx-auto">
-                                    <FormControl className="fieldInnerDiv">
+                                    <FormControl disabled={userRole==="projectmanager" ? false : true } className="fieldInnerDiv">
                                         <InputLabel>Assign a New Developer</InputLabel>
                                         <Select onChange={this.editFormSelectFieldChange} renderValue={() => this.state["developer assigned"]} value={this.state["developer assigned"]}>
                                             {
@@ -199,7 +200,7 @@ class Editbox extends Component {
                             }
 
                             { modalCategory==="Project" ? (<div className="editFormInputField mx-auto">
-                                    <FormControl className="fieldInnerDiv">
+                                    <FormControl disabled={userRole==="developer" || userRole==="tester" ? true : false} className="fieldInnerDiv">
                                         <InputLabel>Project Testers</InputLabel>
                                         <Select multiple onChange={this.editFormSelectFieldChange} renderValue={() => this.state.testers.join(", ")} value={this.state.testers}>
                                             {
