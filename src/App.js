@@ -9,9 +9,7 @@ class App extends Component {
 	render() {
 		return (
 			<div className="landingpage">
-				{/* <Userdashboard /> */}
 				<Switch>
-
 					<Route exact path="/" component={Landingpage} />
 
 					{/*PRIVATE ROUTE ONLY ACCESSIBLE AFTER AUTHENTICATION*/}

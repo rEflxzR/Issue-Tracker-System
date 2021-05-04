@@ -14,7 +14,7 @@ const User = require('../models/users')
 
 router.get('/logout', (req, res) => {
     req.session = null
-    res.send("You Have Been Logged Out")
+    res.status(200).send("Successfully Logged Out")
 })
 
 
@@ -29,6 +29,37 @@ router.get('/cookie-session', (req, res) => {
 
 
 // -----------------------------------------POST ROUTES------------------------------------------------
+
+router.post("/demosignin", async (req, res) => {
+
+    const { role } = req.body
+    const userData = await mongodb.connect('mongodb://localhost:27017/bugtrackerdemo', { useUnifiedTopology: true })
+    .then(async (client) => {
+        const temp = await client.db().collection('users').findOne({ role })
+        await client.close()
+        if(temp) {
+            return temp
+        }
+        else {
+            throw new Error('Some Error Occurred while Searching for Users')
+        }
+    })
+    .catch((err) => {
+        console.log("Some Error Occurred")
+        console.log(err)
+    })
+
+    if(userData) {
+        req.session.userId = userData._id
+        req.session.dbname = "bugtrackerdemo"
+        res.status(200).json({msg: "Success", content: {Name: userData.username, Role: userData.role}})
+    }
+    else {
+        res.status(400).send("Fail")
+    }
+})
+
+
 
 router.post("/signin", async (req, res) => {
     const username = req.body.username

@@ -9,8 +9,10 @@ const Ticket = require('../models/ticket')
 
 router.get('/projecttickets', async (req, res) => {
 	const {title, manager} = req.headers
-	const {userId} = req.session
-	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
+	const {userId, dbname} = req.session
+	const databaseName = dbname ? dbname : "bugtracker"
+
+	const result = await mongodb.connect(`mongodb://localhost:27017/${databaseName}`, { useUnifiedTopology: true })
     .then(async (client) => {
 
 		const allUserTickets = await client.db().collection('users').findOne({"_id": ObjectID(userId)}, {projection: {"_id": 0, tickets: 1}})
@@ -43,7 +45,10 @@ router.get('/projecttickets', async (req, res) => {
 
 router.get('/projectdevsandtesters', async(req, res) => {
 	const {title, manager, requirement} = req.headers
-	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', {useUnifiedTopology: true})
+	const { dbname } = req.session
+	const databaseName = dbname ? dbname : "bugtracker"
+
+	const result = await mongodb.connect(`mongodb://localhost:27017/${databaseName}`, {useUnifiedTopology: true})
 	.then(async (client) => {
 		if(requirement=="only project") {
 			const project = await client.db().collection('projects').findOne({title, manager})
@@ -86,7 +91,10 @@ router.get('/projectdevsandtesters', async(req, res) => {
 
 router.get('/ticketdetails', async (req, res) => {
 	const {title, currentuserproject} = req.headers
-	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', {useUnifiedTopology: true})
+	const { dbname } = req.session
+	const databaseName = dbname ? dbname : "bugtracker"
+
+	const result = await mongodb.connect(`mongodb://localhost:27017/${databaseName}`, {useUnifiedTopology: true})
 	.then(async (client) => {
 		const temp = await client.db().collection('tickets').findOne({ projectName: currentuserproject, title }, { projection: { _id: 0 }})
 		await client.close()
@@ -129,14 +137,16 @@ router.get('/ticketdetails', async (req, res) => {
 router.post('/newticket', async (req, res) => {
 	const {title, description, type, priority, assignedDeveloper, assignedTester, currentUserProject, currentProjectManager} = req.body
 	// REFACTOR TICKET ID ADDITION CODE BELOW
-	const {userId} = req.session
+	const {userId, dbname} = req.session
+	const databaseName = dbname ? dbname : "bugtracker"
+
 	const currentdate = new Date() 
 	const datetime = currentdate.getDate() + "/" + (currentdate.getMonth()+1)  + "/" 
 	+ currentdate.getFullYear() + ", " + currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true })
 	
 	const newTicket = new Ticket({ title, description, type, priority, dateOpened: datetime, tester: assignedTester, developer: assignedDeveloper, projectName: currentUserProject })
 
-	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', {useUnifiedTopology: true})
+	const result = await mongodb.connect(`mongodb://localhost:27017/${databaseName}`, {useUnifiedTopology: true})
 	.then(async (client) => {
 		const existingTicket = await client.db().collection('tickets').findOne({ title, projectName: currentUserProject })
 
@@ -183,14 +193,16 @@ router.post('/newticket', async (req, res) => {
 
 
 router.post('/updateticketdetails', async(req, res) => {
-
 	const { oldTitle, title, description, developer, prevDeveloper, status, comment, type, priority, projectName } = req.body
+	const { dbname } = req.session
+	const databaseName = dbname ? dbname : "bugtracker"
+	
 	const currentdate = new Date()
 	const datetime = currentdate.getDate() + "/" + (currentdate.getMonth()+1)  + "/" 
     + currentdate.getFullYear() + ", " + currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true })
 	const structuredComment = comment!=="" ? {comment, dateCreated: datetime} : null
 
-	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', {useUnifiedTopology: true})
+	const result = await mongodb.connect(`mongodb://localhost:27017/${databaseName}`, {useUnifiedTopology: true})
 	.then(async (client) => {
 		const existingTicket = await client.db().collection('tickets').findOne({ projectName, title })
 		if(existingTicket && oldTitle!=title) {
@@ -232,7 +244,10 @@ router.post('/updateticketdetails', async(req, res) => {
 
 router.delete('/deleteticket', async(req, res) => {
 	const {title, projectName} = req.body
-	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', {useUnifiedTopology: true})
+	const { dbname } = req.session
+	const databaseName = dbname ? dbname : "bugtracker"
+
+	const result = await mongodb.connect(`mongodb://localhost:27017/${databaseName}`, {useUnifiedTopology: true})
 	.then(async (client) => {
 		const temp = await client.db().collection('tickets').findOneAndDelete({title, projectName})
 		const ticketId = ObjectID(temp.value["_id"])

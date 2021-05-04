@@ -5,6 +5,7 @@ import Drawer from '@material-ui/core/Drawer';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
+import Button from '@material-ui/core/Button'
 import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
@@ -84,7 +85,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-export default function Navbar() {
+export default function Navbar(props) {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(window.innerWidth<=600 ? false : true);
@@ -123,6 +124,7 @@ export default function Navbar() {
             <MenuIcon />
           </IconButton>
           <Typography className="text-capitalize" variant="h5" noWrap><strong>Hello {window.localStorage.Name}</strong> | <span className="text-capitalize h6">{window.localStorage.Role==="projectmanager" ? "project manager" : window.localStorage.Role}</span></Typography>
+          <Button className="ml-auto" onClick={props.logout} size="large" variant="contained" color="secondary"><strong>LOGOUT</strong></Button>
         </Toolbar>
       </AppBar>
       <Drawer

@@ -3,6 +3,7 @@ import Loginbox from '../Loginpages/loginbox'
 import Signupbox from '../Loginpages/signupbox'
 import Passwordreset from '../Loginpages/passwordreset'
 import Newpassword from '../Loginpages/newpassword'
+import Demousers from '../Loginpages/demousers'
 import Link from '@material-ui/core/Link'
 import './Landingpage.css'
 
@@ -62,7 +63,7 @@ class Landingpage extends Component {
 						{this.state.currentbox==='signup' && <Signupbox redirect={this.handleRedirect} />}
 						{this.state.currentbox==='resetpassword' && <Passwordreset setNewPass={this.setNewPassword} />}
 						{this.state.currentbox==='setnewpassword' && <Newpassword redirect={this.handleRedirect} />}
-						{this.state.currentbox==='demouser' && <Loginbox />}
+						{this.state.currentbox==='demouser' && <Demousers redirect={this.handleRedirect} />}
 					</div>
 
 					{ this.state.currentbox!=='login' &&

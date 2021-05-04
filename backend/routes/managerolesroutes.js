@@ -6,7 +6,10 @@ const router = express.Router()
 //======================================= GET ROUTES =============================================
 
 router.get('/users', async (req, res) => {
-	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
+	const { dbname } = req.session
+	const databaseName = dbname ? dbname : "bugtracker"
+	
+	const result = await mongodb.connect(`mongodb://localhost:27017/${databaseName}`, { useUnifiedTopology: true })
 	.then(async (client) => {
 		const temp = await client.db().collection('users').find({}).toArray()
 		await client.close()
@@ -43,8 +46,11 @@ router.get('/users', async (req, res) => {
 //======================================= POST ROUTES =============================================
 
 router.post('/updateusers', async (req, res) => {
+	const { dbname } = req.session
+	const databaseName = dbname ? dbname : "bugtracker"
 	const { personName, personRole } = req.body
-	await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
+	
+	await mongodb.connect(`mongodb://localhost:27017/${databaseName}`, { useUnifiedTopology: true })
 	.then(async (client) => {
 		await client.db().collection('users').updateMany({username: {$in: personName}}, {$set: {role: personRole}})
 		await client.close()

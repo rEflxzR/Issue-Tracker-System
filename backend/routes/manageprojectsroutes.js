@@ -9,8 +9,11 @@ const Project = require('../models/project')
 
 
 router.get('/userandprojectdetails', async (req, res) => {
+	const { dbname } = req.session
+	const databaseName = dbname ? dbname : "bugtracker"
 	const result = []
-	await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
+	
+	await mongodb.connect(`mongodb://localhost:27017/${databaseName}`, { useUnifiedTopology: true })
 	.then(async (client) => {
 		const userDetails = await client.db().collection('users').find({role: {$ne: "admin"}}).toArray()
 		const projectDetails = await client.db().collection('projects').find({}).toArray()
@@ -60,7 +63,10 @@ router.get('/userandprojectdetails', async (req, res) => {
 
 
 router.get('/allprojects', async (req, res) => {
-	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', {useUnifiedTopology: true})
+	const { dbname } = req.session
+	const databaseName = dbname ? dbname : "bugtracker"
+
+	const result = await mongodb.connect(`mongodb://localhost:27017/${databaseName}`, {useUnifiedTopology: true})
 	.then(async (client) => {
 		const temp = await client.db().collection('projects').find({}).toArray()
 		await client.close()
@@ -91,8 +97,11 @@ router.get('/allprojects', async (req, res) => {
 
 
 router.get('/projectdetails', async (req, res) => {
+	const { dbname } = req.session
+	const databaseName = dbname ? dbname : "bugtracker"
 	const {title, manager} = req.headers
-	const result = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
+
+	const result = await mongodb.connect(`mongodb://localhost:27017/${databaseName}`, { useUnifiedTopology: true })
 	.then(async (client) => {
 		const temp = await client.db().collection('projects').findOne({title, manager}, { projection: { _id: 0 } })
 		await client.close()
@@ -126,11 +135,12 @@ router.get('/projectdetails', async (req, res) => {
 
 router.post('/newproject', async (req, res) => {
 	const { title, description, Manager, Developer, Tester, datetime } = req.body
-	const {userId} = req.session
+	const {userId, dbname} = req.session
+	const databaseName = dbname ? dbname : "bugtracker"
 	const newProject = new Project({ title, description, dateOpened: datetime, manager: Manager, developers: Developer, testers: Tester })
 	const allProjectPersonals = [...Developer, ...Tester]
 
-	const project = await mongodb.connect('mongodb://localhost:27017/bugtracker', { useUnifiedTopology: true })
+	const project = await mongodb.connect(`mongodb://localhost:27017/${databaseName}`, { useUnifiedTopology: true })
 	.then(async (client) => {
 
 		let projectManager = Manager
