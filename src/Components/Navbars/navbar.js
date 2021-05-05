@@ -16,8 +16,11 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
+import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
+import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolder';
+import AccountTreeIcon from '@material-ui/icons/AccountTree';
+import BugReportIcon from '@material-ui/icons/BugReport';
+import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
 import Homepage from '../Dashboardcomponents/homepage'
 import Profile from '../Dashboardcomponents/profile'
 import UserTickets from '../Dashboardcomponents/usertickets'
@@ -143,18 +146,18 @@ export default function Navbar(props) {
         </div>
         <Divider />
         <List>
-          {[{page:'home', name:'Home'}, {page:'manageroles', name:'Manage Roles'}, {page:'manageprojects', name:'Manage Projects'}].map((text, index) => (
+          {[{page:'home', name:'Home', icon: <HomeIcon />}, {page:'manageroles', name:'Manage Roles', icon: <SupervisorAccountIcon />}, {page:'manageprojects', name:'Manage Projects', icon: <CreateNewFolderIcon />}].map((text, index) => (
             <ListItem onClick={setPage} value={text.page} button key={text.name}>
-              <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
+              <ListItemIcon>{text.icon}</ListItemIcon>
               <ListItemText primary={text.name} />
             </ListItem>
           ))}
         </List>
         <Divider />
         <List>
-          {[{page:'myprojects', name:'My Projects'}, {page:'mytickets', name:'My Tickets'}, {page:'myprofile', name:'My Profile'}].map((text, index) => (
+          {[{page:'myprojects', name:'My Projects', icon: <AccountTreeIcon />}, {page:'mytickets', name:'My Tickets', icon: <BugReportIcon />}, {page:'myprofile', name:'My Profile', icon: <AssignmentIndIcon />}].map((text, index) => (
             <ListItem onClick={setPage} value={text.page} button key={text.name}>
-              <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
+              <ListItemIcon>{text.icon}</ListItemIcon>
               <ListItemText primary={text.name} />
             </ListItem>
           ))}
